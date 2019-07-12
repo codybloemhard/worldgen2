@@ -84,6 +84,8 @@ int main(){
     glAttachShader(shader_programme, fs);
     glAttachShader(shader_programme, vs);
     glLinkProgram(shader_programme);
+    glDeleteShader(vs);
+    glDeleteShader(fs);
 
     // game loop
     double last_time = glfwGetTime();
