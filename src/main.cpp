@@ -1,6 +1,6 @@
-#include "deps/glad/glad.h"
+#include "../deps/glad/glad.h"
 #include "/usr/include/GLFW/glfw3.h"
-#include "deps/linmath.h"
+#include "../deps/linmath.h"
 #include <stdio.h>
 
 void error_callback(int, const char*);
@@ -40,6 +40,7 @@ int main(){
     glfwSwapInterval(1);
     glfwGetFramebufferSize(window, &globals.fbw, &globals.fbh);
     glViewport(0, 0, globals.fbw, globals.fbh);
+    
     //example
     float points[] = {
         0.0f,  0.5f,  0.0f,
