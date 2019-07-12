@@ -1,0 +1,3 @@
+mv worldgen .worldgen
+gcc main.cpp -lglfw -lGLU -lGL -lX11 -lpthread -lXrandr -lXi -ldl
+mv a.out worldgen
