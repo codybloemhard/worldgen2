@@ -7,10 +7,12 @@
 
 void error_callback(int, const char*);
 static void key_callback(GLFWwindow*, int, int, int, int);
+static void window_size_callback(GLFWwindow*, int, int);
 
 static struct Globals{
-    int ww = 1600, wh = 900;
+    uint ww = 1600, wh = 900;
     int fbw = 0, fbh = 0;
+    uint tps = 120, fps = 60;
 } globals;
 
 int main(){
@@ -34,14 +36,13 @@ int main(){
         glfwTerminate();
         return -1;
     }
-    // use this window to capture input
+    // window callbacks
     glfwSetKeyCallback(window, key_callback);
+    glfwSetWindowSizeCallback(window, window_size_callback);
     // use opengl with this window
     glfwMakeContextCurrent(window);
     gladLoadGL();
     glfwSwapInterval(0);//1 for vsync
-    glfwGetFramebufferSize(window, &globals.fbw, &globals.fbh);
-    glViewport(0, 0, globals.fbw, globals.fbh);
     
     //example
     float points[] = {
@@ -75,11 +76,11 @@ int main(){
             update_ticks = 0;
             render_ticks = 0;
         }
-        if((now - last_checkpoint) * 120 > update_ticks){
+        if((now - last_checkpoint) * globals.tps > update_ticks){
             glfwPollEvents();
             update_ticks++;
         }
-        if((now - last_checkpoint) * 60 < render_ticks)
+        if((now - last_checkpoint) * globals.fps < render_ticks)
             continue;
         render_ticks++;
         //render
@@ -103,4 +104,9 @@ void error_callback(int error, const char* description){
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods){
     if(key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, GLFW_TRUE);
+}
+
+static void window_size_callback(GLFWwindow* window, int w, int h){
+    glfwGetFramebufferSize(window, &globals.fbw, &globals.fbh);
+    glViewport(0, 0, globals.fbw, globals.fbh);
 }
