@@ -15,24 +15,16 @@ Shader::Shader(const char* vs, const char* fs){
     glShaderSource(Shader::vs, 1, &rvs, NULL);
     glCompileShader(Shader::vs);
 
-    int succ;
-    char log[512];
-    glGetShaderiv(Shader::vs, GL_COMPILE_STATUS, &succ);
-    if(!succ){
-        glGetShaderInfoLog(Shader::vs, 512, NULL, log);
-        printf("Error: Vertex shader could not compile:\n");
-        printf(log);
-    }
+    bool ok = CheckError(Shader::vs, "Vertex");
 
     Shader::fs = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(Shader::fs, 1, &rfs, NULL);
     glCompileShader(Shader::fs);
 
-    glGetShaderiv(Shader::fs, GL_COMPILE_STATUS, &succ);
-    if(!succ){
-        glGetShaderInfoLog(Shader::fs, 512, NULL, log);
-        printf("Error: Fragment shader could not compile:\n");
-        printf(log);
+    ok &= CheckError(Shader::fs, "Fragment");
+    if(!ok){
+        Shader::sh = 0;
+        return;
     }
 
     Shader::sh = glCreateProgram();
@@ -45,4 +37,21 @@ Shader::Shader(const char* vs, const char* fs){
 
 void Shader::Use(){
     glUseProgram(Shader::sh);
+}
+
+void Shader::Unuse(){
+    glUseProgram(0);
+}
+
+bool Shader::CheckError(GLuint shader, const char* typ){
+    int succ;
+    char log[512];
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &succ);
+    if(!succ){
+        glGetShaderInfoLog(Shader::vs, 512, NULL, log);
+        printf("Error: %c shader could not compile:\n", typ);
+        printf(log);
+        return false;
+    }
+    return true;
 }

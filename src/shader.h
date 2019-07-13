@@ -9,8 +9,10 @@
 class Shader{
     public:
     Shader(const char* vs, const char* fs);
-    void Use();
+    void Use(), Unuse();
     private:
     GLuint vs, fs, sh;
+    enum Type { vertex, fragment };
+    bool CheckError(GLuint shader, const char* typ);
 };
 #endif
