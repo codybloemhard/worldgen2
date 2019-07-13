@@ -64,27 +64,23 @@ int main(){
     auto shader = Shader("shaders/basic.vs", "shaders/basic.fs");
 
     // game loop
-    double last_debug = glfwGetTime();
-    double last_update = glfwGetTime();
-    double last_render = glfwGetTime();
+    double last_checkpoint = glfwGetTime();
     int update_ticks = 0;
     int render_ticks = 0;
     while(!glfwWindowShouldClose(window)){
         auto now = glfwGetTime();
-        if(now - last_debug > 1.0){
-            last_debug = now;
+        if(now - last_checkpoint > 1.0){
+            last_checkpoint = now;
             printf("Ticks: %d, Frames: %d\n", update_ticks, render_ticks);
             update_ticks = 0;
             render_ticks = 0;
         }
-        if(now - last_update > 1.0/120.0){
+        if((now - last_checkpoint) * 120 > update_ticks){
             glfwPollEvents();
-            last_update = now;
             update_ticks++;
         }
-        if(now - last_render < 1.0/60.0)
+        if((now - last_checkpoint) * 60 < render_ticks)
             continue;
-        last_render = now;
         render_ticks++;
         //render
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
