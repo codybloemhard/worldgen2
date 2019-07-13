@@ -5,6 +5,10 @@ Globals Window::globals = {1280,720,0,0,60,60};
 Window::Window(WindowInit init, void(*update)(double), void (*render)(void)){
     this->update = update;
     this->render = render;
+    if(init.ww != 0) Window::globals.ww = init.ww;
+    if(init.wh != 0) Window::globals.wh = init.wh;
+    if(init.tps != 0) Window::globals.tps = init.tps;
+    if(init.fps != 0) Window::globals.fps = init.fps;
     if(!glfwInit()){ // init glfw
         printf("Error: could not init glfw.\n");
         exit(1);
@@ -18,7 +22,7 @@ Window::Window(WindowInit init, void(*update)(double), void (*render)(void)){
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_FLOATING, GLFW_TRUE);
     // create window
-    window = glfwCreateWindow(1280/*Window::globals.ww*/, 720/*Window::globals.wh*/, "Henlo Frens", NULL, NULL);
+    window = glfwCreateWindow(Window::globals.ww, Window::globals.wh, "Henlo Frens", NULL, NULL);
     if(window == NULL){
         printf("Error: could not create window.\n");
         glfwTerminate();
@@ -47,13 +51,13 @@ void Window::Run(){
             update_ticks = 0;
             render_ticks = 0;
         }
-        if((now - last_checkpoint) * 60/*Window::globals.tps*/ > update_ticks){
+        if((now - last_checkpoint) * Window::globals.tps > update_ticks){
             glfwPollEvents();
             update(now - last_update);
             last_update = now;
             update_ticks++;
         }
-        if((now - last_checkpoint) * 60/*Window::globals.fps*/ < render_ticks)
+        if((now - last_checkpoint) * Window::globals.fps < render_ticks)
             continue;
         render_ticks++;
         render();
@@ -76,6 +80,6 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 }
 
 void Window::window_size_callback(GLFWwindow* window, int w, int h){
-    //glfwGetFramebufferSize(window, &Window::globals.fbw, &Window::globals.fbh);
-    glViewport(0, 0, 1280/*Window::globals.fbw*/, 720/*Window::globals.fbh*/);
+    glfwGetFramebufferSize(window, &Window::globals.fbw, &Window::globals.fbh);
+    glViewport(0, 0, Window::globals.fbw, Window::globals.fbh);
 }

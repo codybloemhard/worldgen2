@@ -20,7 +20,7 @@ static Shader* shader;
 
 int main(){
     printf("Henlo Frens!\n");
-    WindowInit winit;
+    WindowInit winit = {1600,900,120,60};
     auto window = Window(winit, &update, &render);
     init();
     window.Run();
@@ -32,7 +32,6 @@ int main(){
 void init(){
     GLuint vbo = 0;
     glGenBuffers(1, &vbo);
-    printf("hahyes\n");
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, 9 * sizeof(float), points, GL_STATIC_DRAW);
     vao = 0;
