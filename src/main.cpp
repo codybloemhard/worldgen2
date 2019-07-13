@@ -39,7 +39,7 @@ int main(){
     // use opengl with this window
     glfwMakeContextCurrent(window);
     gladLoadGL();
-    glfwSwapInterval(1);
+    glfwSwapInterval(0);//1 for vsync
     glfwGetFramebufferSize(window, &globals.fbw, &globals.fbh);
     glViewport(0, 0, globals.fbw, globals.fbh);
     
@@ -64,15 +64,34 @@ int main(){
     auto shader = Shader("shaders/basic.vs", "shaders/basic.fs");
 
     // game loop
-    double last_time = glfwGetTime();
+    double last_debug = glfwGetTime();
+    double last_update = glfwGetTime();
+    double last_render = glfwGetTime();
+    int update_ticks = 0;
+    int render_ticks = 0;
     while(!glfwWindowShouldClose(window)){
+        auto now = glfwGetTime();
+        if(now - last_debug > 1.0){
+            last_debug = now;
+            printf("Ticks: %d, Frames: %d\n", update_ticks, render_ticks);
+            update_ticks = 0;
+            render_ticks = 0;
+        }
+        if(now - last_update > 1.0/120.0){
+            glfwPollEvents();
+            last_update = now;
+            update_ticks++;
+        }
+        if(now - last_render < 1.0/60.0)
+            continue;
+        last_render = now;
+        render_ticks++;
+        //render
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         shader.Use();
         glBindVertexArray(vao);
         glDrawArrays(GL_TRIANGLES, 0, 3);
-
         glfwSwapBuffers(window);
-        glfwPollEvents();
     }
     // end program
     glfwDestroyWindow(window);
