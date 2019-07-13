@@ -1,3 +1,3 @@
 mv worldgen .worldgen
-g++ src/main.cpp src/glad.c src/shader.cpp -lglfw -lGLU -lGL -lX11 -lpthread -lXrandr -lXi -ldl -lm
+g++ src/main.cpp src/window.cpp src/glad.c src/shader.cpp -lglfw -lGLU -lGL -lX11 -lpthread -lXrandr -lXi -ldl -lm
 mv a.out worldgen

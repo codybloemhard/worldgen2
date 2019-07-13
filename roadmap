@@ -1,6 +1,6 @@
 todo:
-refactor shader
+refactor shader read file
 mesh
 input
 camera
-resize window / resoltion / fullscreen
+resoltion / fullscreen
