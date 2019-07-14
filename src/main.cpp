@@ -6,9 +6,9 @@
 #include "window.h"
 #include "shader.h"
 
+void init();
 void update(double);
 void render();
-void init();
 
 static float points[] = {
     0.0f,  0.5f,  0.0f,
@@ -21,8 +21,7 @@ static Shader* shader;
 int main(){
     printf("Henlo Frens!\n");
     WindowInit winit = {1600,900,120,60};
-    auto window = Window(winit, &update, &render);
-    init();
+    auto window = Window(winit, &init, &update, &render);
     window.Run();
     window.End();
     printf("Bye!\n");

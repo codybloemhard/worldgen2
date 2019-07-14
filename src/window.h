@@ -17,10 +17,10 @@ struct Globals{
 
 class Window{
     public:
-    Window(WindowInit, void(*)(double), void(*)(void));
+    Window(WindowInit, void(*)(void),void(*)(double), void(*)(void));
     void Run(), End();
     private:
-    void(*update)(double);
+    void (*update)(double);
     void (*render)(void);
     static Globals globals;
     GLFWwindow* window;

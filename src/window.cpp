@@ -2,13 +2,13 @@
 
 Globals Window::globals = {1280,720,0,0,60,60};
 
-Window::Window(WindowInit init, void(*update)(double), void (*render)(void)){
+Window::Window(WindowInit winit, void(*init)(void), void(*update)(double), void (*render)(void)){
     this->update = update;
     this->render = render;
-    if(init.ww != 0) Window::globals.ww = init.ww;
-    if(init.wh != 0) Window::globals.wh = init.wh;
-    if(init.tps != 0) Window::globals.tps = init.tps;
-    if(init.fps != 0) Window::globals.fps = init.fps;
+    if(winit.ww != 0) Window::globals.ww = winit.ww;
+    if(winit.wh != 0) Window::globals.wh = winit.wh;
+    if(winit.tps != 0) Window::globals.tps = winit.tps;
+    if(winit.fps != 0) Window::globals.fps = winit.fps;
     if(!glfwInit()){ // init glfw
         printf("Error: could not init glfw.\n");
         exit(1);
@@ -35,6 +35,7 @@ Window::Window(WindowInit init, void(*update)(double), void (*render)(void)){
     glfwMakeContextCurrent(window);
     gladLoadGL();
     glfwSwapInterval(0);//1 for vsync
+    init();
 }
 
 void Window::Run(){
