@@ -2,7 +2,7 @@
 #define window_h
 #include "../deps/glad/glad.h"
 #include "/usr/include/GLFW/glfw3.h"
-#include "../deps/linmath.h"
+#include <math.h>
 #include <stdio.h>
 
 struct WindowInit{
