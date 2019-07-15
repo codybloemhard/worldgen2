@@ -22,17 +22,21 @@ class Window{
         void(*)(float),
         void(*)(void),
         void(*)(GLFWwindow*,float),
+        void(*)(GLFWwindow*,float,float),
         void(*)(void));
     void Run(), End();
     private:
     void (*update)(float);
     void (*render)(void), (*glexit)(void);
-    void (*input)(GLFWwindow*,float);
+    void (*key_input)(GLFWwindow*,float);
+    void (*mouse_input)(GLFWwindow*,float,float);
     static Globals globals;
     GLFWwindow* window;
+    static float mousex, mousey;
     //callbacks
     static void error_callback(int, const char*);
     static void key_callback(GLFWwindow*, int, int, int, int);
+    static void mouse_callback(GLFWwindow*, double, double);
     static void window_size_callback(GLFWwindow*, int, int);
 };
 #endif

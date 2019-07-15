@@ -8,7 +8,8 @@
 
 void update(float);
 void render(), init(), exit();
-void input(GLFWwindow*, float);
+void key_input(GLFWwindow*, float);
+void mouse_input(GLFWwindow*, float, float);
 
 static float vertices[] = {
     0.0f,  0.5f,  0.0f,
@@ -20,7 +21,8 @@ static int indices[] = {
 };
 static GLuint vao, vbo, ebo;
 static Shader* shader;
-float pitch, yaw;
+float pitch, yaw, lastx, lasty;
+
 glm::vec3 campos = glm::vec3(0.0f, 0.0f, 5.0f);
 glm::vec3 camdir = glm::vec3(0.0f),
     camup = glm::vec3(0.0f),
@@ -29,7 +31,7 @@ glm::vec3 camdir = glm::vec3(0.0f),
 int main(){
     printf("Henlo Frens!\n");
     WindowInit winit = {1600,900,120,60};
-    auto window = Window(winit, &init, &update, &render, &input, &exit);
+    auto window = Window(winit, &init, &update, &render, &key_input, &mouse_input, &exit);
     window.Run();
     window.End();
     printf("Bye!\n");
@@ -53,13 +55,7 @@ void init(){
 }
 
 void update(float elaps){
-    pitch = 0.0f;
-    yaw = -90.0f;
-    //yaw += elaps * 50.0f;
-    if(pitch > 89.9f)
-        pitch = 89.9f;
-    if(pitch < -89.9f)
-        pitch = -89.9f;
+
 }
 
 void render(){
@@ -86,7 +82,7 @@ void render(){
     glBindVertexArray(0);
 }
 
-void input(GLFWwindow *window, float elaps)
+void key_input(GLFWwindow *window, float elaps)
 {
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
         campos += camdir * elaps;
@@ -96,6 +92,20 @@ void input(GLFWwindow *window, float elaps)
         campos -= camri * elaps;
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         campos += camri * elaps;
+}
+
+void mouse_input(GLFWwindow *window, float xpos, float ypos){
+    float dx = xpos - lastx;
+    float dy = ypos - lasty;
+    lastx = xpos;
+    lasty = ypos;
+    yaw += dx;
+    pitch += dy;
+    
+    if(pitch > 89.9f)
+        pitch = 89.9f;
+    if(pitch < -89.9f)
+        pitch = -89.9f;
 }
 
 void exit(){

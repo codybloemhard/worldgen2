@@ -1,16 +1,20 @@
 #include "window.h"
 
 Globals Window::globals = {1280,720,0,0,60,60};
+float Window::mousex = 0.0f;
+float Window::mousey = 0.0f;
 
 Window::Window(WindowInit winit, 
         void(*init)(void), 
         void(*update)(float), 
         void (*render)(void),
-        void(*input)(GLFWwindow*,float),
+        void(*key_input)(GLFWwindow*,float),
+        void(*mouse_input)(GLFWwindow*,float,float),
         void(*glexit)(void)){
     this->update = update;
     this->render = render;
-    this->input = input;
+    this->key_input = key_input;
+    this->mouse_input = mouse_input;
     this->glexit = glexit;
     if(winit.ww != 0) Window::globals.ww = winit.ww;
     if(winit.wh != 0) Window::globals.wh = winit.wh;
@@ -37,6 +41,7 @@ Window::Window(WindowInit winit,
     }
     // window callbacks
     glfwSetKeyCallback(window, key_callback);
+    glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetWindowSizeCallback(window, window_size_callback);
     // use opengl with this window
     glfwMakeContextCurrent(window);
@@ -62,7 +67,8 @@ void Window::Run(){
         }
         if((now - last_checkpoint) * Window::globals.tps > update_ticks){
             glfwPollEvents();
-            input(window, elaps);
+            key_input(window, elaps);
+            mouse_input(window, Window::mousex, Window::mousey);
             update(elaps);
             last_update = now;
             update_ticks++;
@@ -88,6 +94,11 @@ void Window::error_callback(int error, const char* description){
 void Window::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods){
     if(key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, GLFW_TRUE);
+}
+
+void Window::mouse_callback(GLFWwindow* window, double x, double y){
+    Window::mousex = (float)x;
+    Window::mousey = (float)y;
 }
 
 void Window::window_size_callback(GLFWwindow* window, int w, int h){
