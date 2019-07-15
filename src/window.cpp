@@ -4,11 +4,13 @@ Globals Window::globals = {1280,720,0,0,60,60};
 
 Window::Window(WindowInit winit, 
         void(*init)(void), 
-        void(*update)(double), 
-        void (*render)(void), 
+        void(*update)(float), 
+        void (*render)(void),
+        void(*input)(GLFWwindow*,float),
         void(*glexit)(void)){
     this->update = update;
     this->render = render;
+    this->input = input;
     this->glexit = glexit;
     if(winit.ww != 0) Window::globals.ww = winit.ww;
     if(winit.wh != 0) Window::globals.wh = winit.wh;
@@ -51,6 +53,7 @@ void Window::Run(){
     int render_ticks = 0;
     while(!glfwWindowShouldClose(window)){
         auto now = glfwGetTime();
+        float elaps = (float)(now - last_update);
         if(now - last_checkpoint > 1.0){
             last_checkpoint = now;
             printf("Ticks: %d, Frames: %d\n", update_ticks, render_ticks);
@@ -59,7 +62,8 @@ void Window::Run(){
         }
         if((now - last_checkpoint) * Window::globals.tps > update_ticks){
             glfwPollEvents();
-            update(now - last_update);
+            input(window, elaps);
+            update(elaps);
             last_update = now;
             update_ticks++;
         }

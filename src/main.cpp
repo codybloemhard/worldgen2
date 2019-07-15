@@ -6,8 +6,9 @@
 #include "window.h"
 #include "shader.h"
 
-void update(double);
+void update(float);
 void render(), init(), exit();
+void input(GLFWwindow*, float);
 
 static float vertices[] = {
     0.0f,  0.5f,  0.0f,
@@ -20,11 +21,15 @@ static int indices[] = {
 static GLuint vao, vbo, ebo;
 static Shader* shader;
 float pitch, yaw;
+glm::vec3 campos = glm::vec3(0.0f, 0.0f, 5.0f);
+glm::vec3 camdir = glm::vec3(0.0f),
+    camup = glm::vec3(0.0f),
+    camri = glm::vec3(0.0f);
 
 int main(){
     printf("Henlo Frens!\n");
     WindowInit winit = {1600,900,120,60};
-    auto window = Window(winit, &init, &update, &render, &exit);
+    auto window = Window(winit, &init, &update, &render, &input, &exit);
     window.Run();
     window.End();
     printf("Bye!\n");
@@ -47,9 +52,10 @@ void init(){
     shader = new Shader("shaders/mvp.vs", "shaders/basic.fs");
 }
 
-void update(double elaps){
-    pitch = 0.0f;//+= elaps * 20.0f;
-    yaw += elaps * 50.0f;
+void update(float elaps){
+    pitch = 0.0f;
+    yaw = -90.0f;
+    //yaw += elaps * 50.0f;
     if(pitch > 89.9f)
         pitch = 89.9f;
     if(pitch < -89.9f)
@@ -61,16 +67,14 @@ void render(){
     glClearColor(0.0, 0.0, 0.0, 0.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     shader->Use();
-    glm::vec3 campos = glm::vec3(0.0f, 0.0f, -5.0f);
-    glm::vec3 camdir = glm::vec3(0.0f, 0.0f, -1.0f);
     glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
     
     camdir.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
     camdir.y = sin(glm::radians(pitch));
     camdir.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
     camdir = glm::normalize(camdir);
-    glm::vec3 camri = glm::normalize(glm::cross(camdir, up));
-    glm::vec3 camup = glm::normalize(glm::cross(camri, camdir));
+    camri = glm::normalize(glm::cross(camdir, up));
+    camup = glm::normalize(glm::cross(camri, camdir));
     
     glm::mat4 view = glm::lookAt(campos, campos + camdir, camup);
     glm::mat4 proj = glm::perspective(glm::radians(90.0f), 16.0f/9.0f, .1f, 100.0f);
@@ -80,6 +84,18 @@ void render(){
     glBindVertexArray(vao);
     glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
+}
+
+void input(GLFWwindow *window, float elaps)
+{
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        campos += camdir * elaps;
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        campos -= camdir * elaps;
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        campos -= camri * elaps;
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        campos += camri * elaps;
 }
 
 void exit(){

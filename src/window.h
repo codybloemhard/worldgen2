@@ -17,11 +17,17 @@ struct Globals{
 
 class Window{
     public:
-    Window(WindowInit, void(*)(void),void(*)(double), void(*)(void), void(*)(void));
+    Window(WindowInit, 
+        void(*)(void),
+        void(*)(float),
+        void(*)(void),
+        void(*)(GLFWwindow*,float),
+        void(*)(void));
     void Run(), End();
     private:
-    void (*update)(double);
+    void (*update)(float);
     void (*render)(void), (*glexit)(void);
+    void (*input)(GLFWwindow*,float);
     static Globals globals;
     GLFWwindow* window;
     //callbacks
