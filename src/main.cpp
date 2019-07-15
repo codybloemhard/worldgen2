@@ -43,7 +43,7 @@ void init(){
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-    shader = new Shader("shaders/basic.vs", "shaders/basic.fs");
+    shader = new Shader("shaders/mvp.vs", "shaders/basic.fs");
 }
 
 void update(double elaps){
@@ -51,9 +51,13 @@ void update(double elaps){
 }
 
 void render(){
+    glEnable(GL_DEPTH_TEST);
     glClearColor(0.0, 0.0, 0.0, 0.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     shader->Use();
+    shader->SetMat4("model", glm::mat4(1.0f));
+    shader->SetMat4("view", glm::mat4(1.0f));
+    shader->SetMat4("projection", glm::mat4(1.0f));
     glBindVertexArray(vao);
     glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);

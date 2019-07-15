@@ -6,10 +6,15 @@
 #include <fstream>
 #include <streambuf>
 
+#include "../deps/glm/glm.hpp"
+#include "../deps/glm/gtc/matrix_transform.hpp"
+#include "../deps/glm/gtc/type_ptr.hpp"
+
 class Shader{
     public:
     Shader(const char* vs, const char* fs);
     void Use(), Unuse();
+    void SetMat4(const char*, const glm::mat4 &mat);
     private:
     GLuint vs, fs, sh;
     enum Type { vertex, fragment };

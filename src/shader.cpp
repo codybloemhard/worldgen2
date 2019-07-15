@@ -36,11 +36,16 @@ Shader::Shader(const char* vs, const char* fs){
 }
 
 void Shader::Use(){
-    glUseProgram(Shader::sh);
+    glUseProgram(sh);
 }
 
 void Shader::Unuse(){
     glUseProgram(0);
+}
+
+void Shader::SetMat4(const char* name, const glm::mat4 &mat){
+    int uniloc = glGetUniformLocation(sh, name);
+    glUniformMatrix4fv(uniloc, 1, GL_FALSE, &mat[0][0]);
 }
 
 bool Shader::CheckError(GLuint shader, const char* typ){
