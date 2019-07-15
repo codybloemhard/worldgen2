@@ -6,9 +6,8 @@
 #include "window.h"
 #include "shader.h"
 
-void init();
 void update(double);
-void render();
+void render(), init(), exit();
 
 static float vertices[] = {
     0.0f,  0.5f,  0.0f,
@@ -18,13 +17,13 @@ static float vertices[] = {
 static int indices[] = {
     0, 1, 2
 };
-static GLuint vao;
+static GLuint vao, vbo, ebo;
 static Shader* shader;
 
 int main(){
     printf("Henlo Frens!\n");
     WindowInit winit = {1600,900,120,60};
-    auto window = Window(winit, &init, &update, &render);
+    auto window = Window(winit, &init, &update, &render, &exit);
     window.Run();
     window.End();
     printf("Bye!\n");
@@ -32,15 +31,12 @@ int main(){
 }
 
 void init(){
-    GLuint vbo;
     glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-    GLuint ebo;
     glGenBuffers(1, &ebo);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-    vao = 0;
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
     glEnableVertexAttribArray(0);
@@ -61,4 +57,10 @@ void render(){
     glBindVertexArray(vao);
     glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
+}
+
+void exit(){
+    glDeleteVertexArrays(1, &vao);
+    glDeleteBuffers(1, &vbo);
+    glDeleteBuffers(1, &ebo);
 }

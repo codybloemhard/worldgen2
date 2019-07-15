@@ -2,9 +2,14 @@
 
 Globals Window::globals = {1280,720,0,0,60,60};
 
-Window::Window(WindowInit winit, void(*init)(void), void(*update)(double), void (*render)(void)){
+Window::Window(WindowInit winit, 
+        void(*init)(void), 
+        void(*update)(double), 
+        void (*render)(void), 
+        void(*glexit)(void)){
     this->update = update;
     this->render = render;
+    this->glexit = glexit;
     if(winit.ww != 0) Window::globals.ww = winit.ww;
     if(winit.wh != 0) Window::globals.wh = winit.wh;
     if(winit.tps != 0) Window::globals.tps = winit.tps;
@@ -67,6 +72,7 @@ void Window::Run(){
 }
 
 void Window::End(){
+    glexit();
     glfwDestroyWindow(window);
     glfwTerminate();
 }
