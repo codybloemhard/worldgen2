@@ -6,24 +6,28 @@
 #include "window.h"
 #include "shader.h"
 #include "fps_camera.h"
+#include "glstuff.h"
 
 void update(float);
 void render(), init(), exit();
 void input(GLFWwindow*, float, float, float);
 
-static float vertices[] = {
+static Buffer<float> *vertices = new Buffer(new float[12]{
     0.0f, 0.0f, 0.0f,
     1.0f, 0.0f, 0.0f,
     0.0f, 0.0f, 1.0f,
     1.0f, 0.0f, 1.0f
-};
+}, 12);
+
 static int indices[] = {
     0, 2, 1,
     2, 3, 1
 };
-static GLuint vao, vbo, ebo;
-static Shader* shader;
-static FpsCamera* cam;
+
+static VBO *vbo;
+static GLuint vao, ebo;
+static Shader *shader;
+static FpsCamera *cam;
 
 int main(){
     printf("Henlo Frens!\n");
@@ -36,16 +40,17 @@ int main(){
 }
 
 void init(){
-    glGenBuffers(1, &vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    vbo = new VBO();
+    vbo->bind();
+    vbo->stuff(vertices);
+    vbo->upload();
     glGenBuffers(1, &ebo);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
     glEnableVertexAttribArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    vbo->bind();
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
     shader = new Shader("shaders/mvp.vs", "shaders/basic.fs");
@@ -75,6 +80,6 @@ void input(GLFWwindow *window, float elaps, float xpos, float ypos)
 
 void exit(){
     glDeleteVertexArrays(1, &vao);
-    glDeleteBuffers(1, &vbo);
+    delete vbo;
     glDeleteBuffers(1, &ebo);
 }

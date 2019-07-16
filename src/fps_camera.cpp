@@ -1,6 +1,7 @@
 #include "fps_camera.h"
 
 FpsCamera::FpsCamera(){}
+
 void FpsCamera::input(GLFWwindow *window, float elaps, float xpos, float ypos){
     auto xzdir = camdir;
     xzdir.y = 0.0f;
@@ -34,6 +35,7 @@ void FpsCamera::input(GLFWwindow *window, float elaps, float xpos, float ypos){
     if(pitch < -89.99f)
         pitch = -89.99f;
 }
+
 void FpsCamera::apply_mvp(Shader *shader){
     glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
     camdir.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
