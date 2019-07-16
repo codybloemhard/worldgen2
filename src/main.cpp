@@ -12,12 +12,14 @@ void render(), init(), exit();
 void input(GLFWwindow*, float, float, float);
 
 static float vertices[] = {
-    0.0f,  0.5f,  0.0f,
-    0.5f, -0.5f,  0.0f,
-    -0.5f, -0.5f,  0.0f
+    0.0f, 0.0f, 0.0f,
+    1.0f, 0.0f, 0.0f,
+    0.0f, 0.0f, 1.0f,
+    1.0f, 0.0f, 1.0f
 };
 static int indices[] = {
-    0, 1, 2
+    0, 2, 1,
+    2, 3, 1
 };
 static GLuint vao, vbo, ebo;
 static Shader* shader;
@@ -48,6 +50,7 @@ void init(){
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
     shader = new Shader("shaders/mvp.vs", "shaders/basic.fs");
     cam = new FpsCamera();
+    cam->move_sens = 2.0f;
 }
 
 void update(float elaps){
@@ -61,7 +64,7 @@ void render(){
     shader->Use();
     cam->apply_mvp(shader);
     glBindVertexArray(vao);
-    glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
 }
 

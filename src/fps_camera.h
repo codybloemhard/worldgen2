@@ -12,6 +12,7 @@ class FpsCamera{
     FpsCamera();
     void input(GLFWwindow*, float, float, float);
     void apply_mvp(Shader*);
+    float move_sens = 1.0f, mouse_sens = 0.1f;
     private:
     float pitch, yaw, lastx, lasty;
     glm::vec3 campos = glm::vec3(0.0f, 0.0f, 0.0f);
