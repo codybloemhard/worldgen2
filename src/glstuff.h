@@ -23,18 +23,34 @@ class Buffer{
     private:
     int l;
 };
-
-class VBO{
+//General buffer object
+template <typename T>
+class GBO{
     public:
-    VBO();
-    ~VBO();
-    void bind();
-    void stuff(Buffer<float>*);
-    void upload();
-    GLuint handle();
+    GBO(GLenum target){
+        glGenBuffers(1, &gbo);
+        this->target = target;
+    }
+    ~GBO(){
+        glDeleteBuffers(1, &gbo);
+        delete data;
+    }
+    void bind(){
+        glBindBuffer(target, gbo);
+    }
+    void stuff(Buffer<T> *data){
+        this->data = data;
+    }
+    void upload(GLenum use){
+        glBufferData(target, data->size(), data->data, use);
+    }
+    GLuint handle(){
+        return gbo;
+    }
     private:
-    GLuint vbo;
-    Buffer<float> *data;
+    GLuint gbo;
+    GLenum target;
+    Buffer<T> *data;
 };
 
 class VAO{

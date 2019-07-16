@@ -19,13 +19,14 @@ static Buffer<float> *vertices = new Buffer(new float[12]{
     1.0f, 0.0f, 1.0f
 }, 12);
 
-static int indices[] = {
+static Buffer<int> *indices = new Buffer(new int[6]{
     0, 2, 1,
     2, 3, 1
-};
+}, 6);
 
-static VBO *vbo;
-static GLuint vao, ebo;
+static GBO<float> *vbo;
+static GBO<int> *ebo;
+static GLuint vao;
 static Shader *shader;
 static FpsCamera *cam;
 
@@ -40,18 +41,19 @@ int main(){
 }
 
 void init(){
-    vbo = new VBO();
+    vbo = new GBO<float>(GL_ARRAY_BUFFER);
     vbo->bind();
     vbo->stuff(vertices);
-    vbo->upload();
-    glGenBuffers(1, &ebo);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    vbo->upload(GL_STATIC_DRAW);
+    ebo = new GBO<int>(GL_ELEMENT_ARRAY_BUFFER);
+    ebo->bind();
+    ebo->stuff(indices);
+    ebo->upload(GL_STATIC_DRAW);
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
     glEnableVertexAttribArray(0);
     vbo->bind();
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+    ebo->bind();
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
     shader = new Shader("shaders/mvp.vs", "shaders/basic.fs");
     cam = new FpsCamera();
@@ -81,5 +83,5 @@ void input(GLFWwindow *window, float elaps, float xpos, float ypos)
 void exit(){
     glDeleteVertexArrays(1, &vao);
     delete vbo;
-    glDeleteBuffers(1, &ebo);
+    delete ebo;
 }
