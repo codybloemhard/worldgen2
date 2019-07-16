@@ -8,13 +8,11 @@ Window::Window(WindowInit winit,
         void(*init)(void), 
         void(*update)(float), 
         void (*render)(void),
-        void(*key_input)(GLFWwindow*,float),
-        void(*mouse_input)(GLFWwindow*,float,float),
+        void(*input)(GLFWwindow*,float,float,float),
         void(*glexit)(void)){
     this->update = update;
     this->render = render;
-    this->key_input = key_input;
-    this->mouse_input = mouse_input;
+    this->input = input;
     this->glexit = glexit;
     if(winit.ww != 0) Window::globals.ww = winit.ww;
     if(winit.wh != 0) Window::globals.wh = winit.wh;
@@ -43,6 +41,7 @@ Window::Window(WindowInit winit,
     glfwSetKeyCallback(window, key_callback);
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetWindowSizeCallback(window, window_size_callback);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     // use opengl with this window
     glfwMakeContextCurrent(window);
     gladLoadGL();
@@ -67,8 +66,7 @@ void Window::Run(){
         }
         if((now - last_checkpoint) * Window::globals.tps > update_ticks){
             glfwPollEvents();
-            key_input(window, elaps);
-            mouse_input(window, Window::mousex, Window::mousey);
+            input(window, elaps, Window::mousex, Window::mousey);
             update(elaps);
             last_update = now;
             update_ticks++;

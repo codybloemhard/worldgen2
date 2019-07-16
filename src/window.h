@@ -21,15 +21,13 @@ class Window{
         void(*)(void),
         void(*)(float),
         void(*)(void),
-        void(*)(GLFWwindow*,float),
-        void(*)(GLFWwindow*,float,float),
+        void(*)(GLFWwindow*,float,float,float),
         void(*)(void));
     void Run(), End();
     private:
     void (*update)(float);
     void (*render)(void), (*glexit)(void);
-    void (*key_input)(GLFWwindow*,float);
-    void (*mouse_input)(GLFWwindow*,float,float);
+    void (*input)(GLFWwindow*,float,float,float);
     static Globals globals;
     GLFWwindow* window;
     static float mousex, mousey;
