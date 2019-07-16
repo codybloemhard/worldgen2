@@ -44,7 +44,12 @@ void Shader::Unuse(){
 }
 
 void Shader::SetMat4(const char* name, const glm::mat4 &mat){
-    int uniloc = glGetUniformLocation(sh, name);
+    int uniloc;
+    auto it = unimap.find(name);
+    if(it != unimap.end())
+        uniloc = it->second;
+    else
+        uniloc = glGetUniformLocation(sh, name);
     glUniformMatrix4fv(uniloc, 1, GL_FALSE, &mat[0][0]);
 }
 

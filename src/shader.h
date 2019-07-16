@@ -5,7 +5,7 @@
 #include <string>
 #include <fstream>
 #include <streambuf>
-
+#include <map>
 #include "../deps/glm/glm.hpp"
 #include "../deps/glm/gtc/matrix_transform.hpp"
 #include "../deps/glm/gtc/type_ptr.hpp"
@@ -17,6 +17,7 @@ class Shader{
     void SetMat4(const char*, const glm::mat4 &mat);
     private:
     GLuint vs, fs, sh;
+    std::map<const char*, int> unimap;
     enum Type { vertex, fragment };
     bool CheckError(GLuint shader, const char* typ);
 };
