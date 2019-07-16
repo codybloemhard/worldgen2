@@ -1,17 +1,26 @@
 #include "fps_camera.h"
 
-FpsCamera::FpsCamera(){
-
-}
+FpsCamera::FpsCamera(){}
 void FpsCamera::input(GLFWwindow *window, float elaps, float xpos, float ypos){
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        campos += camdir * elaps;
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        campos -= camdir * elaps;
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        campos -= camri * elaps;
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        campos += camri * elaps;
+    auto xzdir = camdir;
+    xzdir.y = 0.0f;
+    glm::normalize(xzdir);
+    auto xzri = camri;
+    xzri.y = 0.0f;
+    glm::normalize(xzri);
+    auto up = glm::vec3(0.0f,1.0f,0.0f);
+    if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        campos += xzdir * elaps;
+    if(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        campos -= xzdir * elaps;
+    if(glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        campos -= xzri * elaps;
+    if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        campos += xzri * elaps;
+    if(glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+        campos += up * elaps;
+    if(glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+        campos -= up * elaps;
     
     float dx = xpos - lastx;
     float dy = lasty - ypos;
