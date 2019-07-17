@@ -26,7 +26,7 @@ static Buffer<int> *indices = new Buffer(new int[6]{
 
 static GBO<float> *vbo;
 static GBO<int> *ebo;
-static GLuint vao;
+static VAO *vao;
 static Shader *shader;
 static FpsCamera *cam;
 
@@ -49,12 +49,10 @@ void init(){
     ebo->bind();
     ebo->stuff(indices);
     ebo->upload(GL_STATIC_DRAW);
-    glGenVertexArrays(1, &vao);
-    glBindVertexArray(vao);
-    glEnableVertexAttribArray(0);
-    vbo->bind();
-    ebo->bind();
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+    vao = new VAO();
+    vao->bind();
+    vao->add_ebo(ebo);
+    add_vaa(vbo, 0, 3, GL_FLOAT, GL_FALSE, 0);
     shader = new Shader("shaders/mvp.vs", "shaders/basic.fs");
     cam = new FpsCamera();
     cam->move_sens = 2.0f;
@@ -70,7 +68,7 @@ void render(){
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     shader->Use();
     cam->apply_mvp(shader);
-    glBindVertexArray(vao);
+    vao->bind();
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
 }
@@ -81,7 +79,7 @@ void input(GLFWwindow *window, float elaps, float xpos, float ypos)
 }
 
 void exit(){
-    glDeleteVertexArrays(1, &vao);
+    delete vao;
     delete vbo;
     delete ebo;
 }

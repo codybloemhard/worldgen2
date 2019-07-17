@@ -2,6 +2,7 @@
 #define glstuff_h
 #include "../deps/glad/glad.h"
 #include "/usr/include/GLFW/glfw3.h"
+#include <vector>
 
 template <typename T>
 class Buffer{
@@ -52,13 +53,33 @@ class GBO{
     GLenum target;
     Buffer<T> *data;
 };
+//vertex attribute array
+/*struct VAA{
+    GBO *gbo;
+    GLint index, size;
+    GLenum type;
+    GLboolean normalized;
+    GLsizei stride;
+};*/
+
+template <typename T>
+void add_vaa(GBO<T> *gbo, GLint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride){
+    gbo->bind();
+    glEnableVertexAttribArray(index);
+    glVertexAttribPointer(index, size, type, normalized, stride, NULL);
+}
 
 class VAO{
     public:
     VAO();
+    ~VAO();
     void bind();
+    void unbind();
+    void add_ebo(GBO<int>*);
     private:
-    GLuint handle;
+    GLuint vao;
+    //GBO* ebo;
+    //std::vector<VAA> gbos;
 };
 
 #endif
