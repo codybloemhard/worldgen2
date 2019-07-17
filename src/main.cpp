@@ -28,8 +28,8 @@ static Buffer<uint> *indices = new Buffer(new uint[6]{
 static GBO<float> *vbo;
 static GBO<uint> *ebo;
 static VAO *vao;
-uint size = 32;
-float scale = 0.05f;
+uint size = 640;
+float scale = 0.005f, height = 10.0f;
 static Shader *shader;
 static FpsCamera *cam;
 
@@ -50,20 +50,20 @@ void init(){
         uint x = (i % (size+1));
         uint y = (i / (size+1));
         vertices->data[i * 3 + 0] = x;
-        vertices->data[i * 3 + 1] = SimplexNoise::noise(x * scale, y * scale);
+        vertices->data[i * 3 + 1] = SimplexNoise::noise(x * scale, y * scale) * height;
         vertices->data[i * 3 + 2] = y;
     }
     uint indi_len = size * size * 6;
     indices = new Buffer(new uint[indi_len], indi_len);
-    for(int i = 0; i < size * size; i++){
-        uint x = (i % (size+1));
-        uint y = (i / (size+1));
-        indices->data[i * 6 + 0] = x + y * (size + 1);
-        indices->data[i * 6 + 1] = x + 1 + (y + 1) * (size + 1);
-        indices->data[i * 6 + 2] = x + (y + 1) * (size + 1);
-        indices->data[i * 6 + 3] = x + y * (size + 1);
-        indices->data[i * 6 + 4] = x + 1 + y * (size + 1);
-        indices->data[i * 6 + 5] = x + 1 + (y + 1) * (size + 1);
+    int i = 0;
+    for(int x = 0; x < size; x++)for(int y = 0; y < size; y++){
+        indices->data[i + 0] = (x + 0) + (y + 0) * (size + 1);
+        indices->data[i + 1] = (x + 1) + (y + 0) * (size + 1);
+        indices->data[i + 2] = (x + 1) + (y + 1) * (size + 1);
+        indices->data[i + 3] = (x + 0) + (y + 0) * (size + 1);
+        indices->data[i + 4] = (x + 1) + (y + 1) * (size + 1);
+        indices->data[i + 5] = (x + 0) + (y + 1) * (size + 1);
+        i += 6;
     }
 
     vbo = new GBO<float>(GL_ARRAY_BUFFER);
@@ -80,7 +80,7 @@ void init(){
     add_vaa(vbo, 0, 3, GL_FLOAT, GL_FALSE, 0);
     shader = new Shader("shaders/terrain.vs", "shaders/terrain.fs");
     cam = new FpsCamera();
-    cam->move_sens = 2.0f;
+    cam->move_sens = 20.0f;
 }
 
 void update(float elaps){

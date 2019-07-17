@@ -46,7 +46,7 @@ void FpsCamera::apply_mvp(Shader *shader){
     camup = glm::normalize(glm::cross(camri, camdir));
     
     glm::mat4 view = glm::lookAt(campos, campos + camdir, camup);
-    glm::mat4 proj = glm::perspective(glm::radians(90.0f), 16.0f/9.0f, .1f, 100.0f);
+    glm::mat4 proj = glm::perspective(glm::radians(fov), aspect, near, far);
     shader->SetMat4("model", glm::mat4(1.0f));
     shader->SetMat4("view", view);
     shader->SetMat4("proj", proj);
