@@ -72,8 +72,6 @@ class VAO{
     void add_ebo(GBO<uint>*);
     private:
     GLuint vao;
-    //GBO* ebo;
-    //std::vector<VAA> gbos;
 };
 
 #endif

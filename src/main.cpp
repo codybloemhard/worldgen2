@@ -2,6 +2,7 @@
 #include "/usr/include/GLFW/glfw3.h"
 #include "../deps/linmath.h"
 #include <stdio.h>
+#include "../deps/SimplexNoise.h"
 
 #include "window.h"
 #include "shader.h"
@@ -28,6 +29,7 @@ static GBO<float> *vbo;
 static GBO<uint> *ebo;
 static VAO *vao;
 uint size = 32;
+float scale = 0.05f;
 static Shader *shader;
 static FpsCamera *cam;
 
@@ -45,9 +47,11 @@ void init(){
     uint vert_len = (size+1)*(size+1);
     vertices = new Buffer(new float[vert_len * 3], vert_len * 3);
     for(int i = 0; i < vert_len; i++){
-        vertices->data[i * 3 + 0] = (i % (size+1));
-        vertices->data[i * 3 + 1] = 0.0f;
-        vertices->data[i * 3 + 2] = (i / (size+1));
+        uint x = (i % (size+1));
+        uint y = (i / (size+1));
+        vertices->data[i * 3 + 0] = x;
+        vertices->data[i * 3 + 1] = SimplexNoise::noise(x * scale, y * scale);
+        vertices->data[i * 3 + 2] = y;
     }
     uint indi_len = size * size * 6;
     indices = new Buffer(new uint[indi_len], indi_len);
@@ -74,7 +78,7 @@ void init(){
     vao->bind();
     vao->add_ebo(ebo);
     add_vaa(vbo, 0, 3, GL_FLOAT, GL_FALSE, 0);
-    shader = new Shader("shaders/mvp.vs", "shaders/basic.fs");
+    shader = new Shader("shaders/terrain.vs", "shaders/terrain.fs");
     cam = new FpsCamera();
     cam->move_sens = 2.0f;
 }
