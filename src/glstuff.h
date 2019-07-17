@@ -53,14 +53,6 @@ class GBO{
     GLenum target;
     Buffer<T> *data;
 };
-//vertex attribute array
-/*struct VAA{
-    GBO *gbo;
-    GLint index, size;
-    GLenum type;
-    GLboolean normalized;
-    GLsizei stride;
-};*/
 
 template <typename T>
 void add_vaa(GBO<T> *gbo, GLint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride){
@@ -69,13 +61,15 @@ void add_vaa(GBO<T> *gbo, GLint index, GLint size, GLenum type, GLboolean normal
     glVertexAttribPointer(index, size, type, normalized, stride, NULL);
 }
 
+#define uint unsigned int
+
 class VAO{
     public:
     VAO();
     ~VAO();
     void bind();
     void unbind();
-    void add_ebo(GBO<int>*);
+    void add_ebo(GBO<uint>*);
     private:
     GLuint vao;
     //GBO* ebo;

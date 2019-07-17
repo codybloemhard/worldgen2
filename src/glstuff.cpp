@@ -16,6 +16,6 @@ void VAO::unbind(){
     glBindVertexArray(0);
 }
 
-void VAO::add_ebo(GBO<int>* ebo){
+void VAO::add_ebo(GBO<uint>* ebo){
     ebo->bind();
 }

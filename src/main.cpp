@@ -19,14 +19,15 @@ static Buffer<float> *vertices = new Buffer(new float[12]{
     1.0f, 0.0f, 1.0f
 }, 12);
 
-static Buffer<int> *indices = new Buffer(new int[6]{
+static Buffer<uint> *indices = new Buffer(new uint[6]{
     0, 2, 1,
     2, 3, 1
 }, 6);
 
 static GBO<float> *vbo;
-static GBO<int> *ebo;
+static GBO<uint> *ebo;
 static VAO *vao;
+uint size = 32;
 static Shader *shader;
 static FpsCamera *cam;
 
@@ -41,11 +42,31 @@ int main(){
 }
 
 void init(){
+    uint vert_len = (size+1)*(size+1);
+    vertices = new Buffer(new float[vert_len * 3], vert_len * 3);
+    for(int i = 0; i < vert_len; i++){
+        vertices->data[i * 3 + 0] = (i % (size+1));
+        vertices->data[i * 3 + 1] = 0.0f;
+        vertices->data[i * 3 + 2] = (i / (size+1));
+    }
+    uint indi_len = size * size * 6;
+    indices = new Buffer(new uint[indi_len], indi_len);
+    for(int i = 0; i < size * size; i++){
+        uint x = (i % (size+1));
+        uint y = (i / (size+1));
+        indices->data[i * 6 + 0] = x + y * (size + 1);
+        indices->data[i * 6 + 1] = x + 1 + (y + 1) * (size + 1);
+        indices->data[i * 6 + 2] = x + (y + 1) * (size + 1);
+        indices->data[i * 6 + 3] = x + y * (size + 1);
+        indices->data[i * 6 + 4] = x + 1 + y * (size + 1);
+        indices->data[i * 6 + 5] = x + 1 + (y + 1) * (size + 1);
+    }
+
     vbo = new GBO<float>(GL_ARRAY_BUFFER);
     vbo->bind();
     vbo->stuff(vertices);
     vbo->upload(GL_STATIC_DRAW);
-    ebo = new GBO<int>(GL_ELEMENT_ARRAY_BUFFER);
+    ebo = new GBO<uint>(GL_ELEMENT_ARRAY_BUFFER);
     ebo->bind();
     ebo->stuff(indices);
     ebo->upload(GL_STATIC_DRAW);
@@ -69,7 +90,7 @@ void render(){
     shader->Use();
     cam->apply_mvp(shader);
     vao->bind();
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, size*size*6, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
 }
 
