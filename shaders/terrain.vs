@@ -3,11 +3,14 @@ layout (location = 0) in vec3 vp;
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 proj;
+uniform float height;
 
 out vec3 pos;
 
 void main(){
-    vec4 p = model * vec4(vp, 1.0);
+    vec3 copy = vp;
+    copy.y *= height;
+    vec4 p = model * vec4(copy, 1.0);
     gl_Position = proj * view * p;
     pos = p.xyz;
 }

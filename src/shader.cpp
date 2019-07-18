@@ -15,13 +15,13 @@ Shader::Shader(const char* vs, const char* fs){
     glShaderSource(Shader::vs, 1, &rvs, NULL);
     glCompileShader(Shader::vs);
 
-    bool ok = CheckError(Shader::vs, "Vertex");
+    bool ok = check_error(Shader::vs, "Vertex");
 
     Shader::fs = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(Shader::fs, 1, &rfs, NULL);
     glCompileShader(Shader::fs);
 
-    ok &= CheckError(Shader::fs, "Fragment");
+    ok &= check_error(Shader::fs, "Fragment");
     if(!ok){
         Shader::sh = 0;
         return;
@@ -43,17 +43,72 @@ void Shader::Unuse(){
     glUseProgram(0);
 }
 
-void Shader::SetMat4(const char* name, const glm::mat4 &mat){
-    int uniloc;
-    auto it = unimap.find(name);
-    if(it != unimap.end())
-        uniloc = it->second;
-    else
-        uniloc = glGetUniformLocation(sh, name);
-    glUniformMatrix4fv(uniloc, 1, GL_FALSE, &mat[0][0]);
+void Shader::set_float(const char *name, const float &x){
+    auto ul = uniloc(name);
+    glUniform1f(ul, x);
 }
 
-bool Shader::CheckError(GLuint shader, const char* typ){
+void Shader::set_float2(const char *name, const float &x, const float &y){
+    auto ul = uniloc(name);
+    glUniform2f(ul, x, y);
+}
+
+void Shader::set_float3(const char *name, const float &x, const float &y, const float &z){
+    auto ul = uniloc(name);
+    glUniform3f(ul, x, y, z);
+}
+
+void Shader::set_float4(const char *name, const float &x, const float &y, const float &z, const float &w){
+    auto ul = uniloc(name);
+    glUniform4f(ul, x, y, z, w);
+}
+
+void Shader::set_int(const char *name, const int &x){
+    auto ul = uniloc(name);
+    glUniform1i(ul, x);
+}
+
+void Shader::set_int2(const char *name, const int &x, const int &y){
+    auto ul = uniloc(name);
+    glUniform2i(ul, x, y);
+}
+
+void Shader::set_int3(const char *name, const int &x, const int &y, const int &z){
+    auto ul = uniloc(name);
+    glUniform3i(ul, x, y, z);
+}
+
+void Shader::set_int4(const char *name, const int &x, const int &y, const int &z, const int &w){
+    auto ul = uniloc(name);
+    glUniform4i(ul, x, y, z, w);
+}
+
+void Shader::set_uint(const char *name, const uint &x){
+    auto ul = uniloc(name);
+    glUniform1ui(ul, x);
+}
+
+void Shader::set_uint2(const char *name, const uint &x, const uint &y){
+    auto ul = uniloc(name);
+    glUniform2ui(ul, x, y);
+}
+
+void Shader::set_uint3(const char *name, const uint &x, const uint &y, const uint &z){
+    auto ul = uniloc(name);
+    glUniform3ui(ul, x, y, z);
+}
+
+void Shader::set_uint4(const char *name, const uint &x, const uint &y, const uint &z, const uint &w){
+    auto ul = uniloc(name);
+    glUniform4ui(ul, x, y, z, w);
+}
+
+void Shader::set_mat4(const char *name, const glm::mat4 &mat){
+    auto ul = uniloc(name);
+    glUniformMatrix4fv(ul, 1, GL_FALSE, &mat[0][0]);
+}
+
+bool Shader::check_error(GLuint shader, const char* typ){
     int succ;
     char log[512];
     glGetShaderiv(shader, GL_COMPILE_STATUS, &succ);
@@ -64,4 +119,14 @@ bool Shader::CheckError(GLuint shader, const char* typ){
         return false;
     }
     return true;
+}
+
+int Shader::uniloc(const char *name){
+    int uniloc;
+    auto it = unimap.find(name);
+    if(it != unimap.end())
+        uniloc = it->second;
+    else
+        uniloc = glGetUniformLocation(sh, name);
+    return uniloc;
 }

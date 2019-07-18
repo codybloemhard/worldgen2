@@ -29,7 +29,8 @@ static GBO<float> *vbo;
 static GBO<uint> *ebo;
 static VAO *vao;
 uint size = 640;
-float scale = 0.005f, height = 10.0f;
+float scale = 0.002f, height = 64.0f;
+SimplexNoise *noise = new SimplexNoise();
 static Shader *shader;
 static FpsCamera *cam;
 
@@ -50,7 +51,8 @@ void init(){
         uint x = (i % (size+1));
         uint y = (i / (size+1));
         vertices->data[i * 3 + 0] = x;
-        vertices->data[i * 3 + 1] = SimplexNoise::noise(x * scale, y * scale) * height;
+        float h = noise->fractal(5, x * scale, y * scale);
+        vertices->data[i * 3 + 1] = h;
         vertices->data[i * 3 + 2] = y;
     }
     uint indi_len = size * size * 6;
@@ -84,7 +86,8 @@ void init(){
 }
 
 void update(float elaps){
-
+    shader->Use();
+    shader->set_float("height", height);
 }
 
 void render(){
