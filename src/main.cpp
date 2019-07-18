@@ -75,8 +75,8 @@ void init(){
             auto q0 = from_arr(vertices->data, r0 * 3);
             auto q1 = from_arr(vertices->data, r2 * 3);
             auto q2 = from_arr(vertices->data, r3 * 3);
-            auto pn = glm::normalize(glm::cross(p2-p0,p1-p0));
-            auto qn = glm::normalize(glm::cross(q2-q0,q1-q0));
+            auto pn = glm::normalize(glm::cross(p1-p0,p2-p0));
+            auto qn = glm::normalize(glm::cross(q1-q0,q2-q0));
             count[r0] += 2;
             norms[r0] += pn + qn;
             count[r1]++;
@@ -88,7 +88,6 @@ void init(){
         }
         for(int i = 0; i < norm_len; i++){
             norms[i] /= (float)count[i];
-            //norms[i] = glm::normalize(norms[i]);
         }
         for(int i = 0; i < norm_len; i++){
             normals->data[i * 3 + 0] = norms[i].x;
@@ -160,6 +159,7 @@ void render(){
 
     shader->Use();
     shader->set_float("height", height);
+    shader->set_float3("light_dir", 0.0f, -1.0f, 0.0f);
     cam->apply_mvp(shader);
     terrain->bind();
     glDrawElements(GL_TRIANGLES, size*size*6, GL_UNSIGNED_INT, 0);

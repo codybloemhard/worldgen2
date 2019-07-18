@@ -13,5 +13,5 @@ void main(){
     vec4 p = model * vec4(vp, 1.0);
     gl_Position = proj * view * p;
     pos = p.xyz;
-    nor = nr;//(model * vec4(nr, 1.0)).xyz;
+    nor = (model * vec4(nr, 1.0)).xyz;
 }
