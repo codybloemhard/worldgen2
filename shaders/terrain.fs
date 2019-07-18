@@ -1,6 +1,7 @@
 #version 400
 uniform float height;
 in vec3 pos;
+in vec3 nor;
 out vec4 frag_colour;
 void main(){
     vec3 p = pos;
@@ -17,5 +18,5 @@ void main(){
     col += smoothstep(0.6f-b, 0.8f+b, p.y) * smoothstep(0.8f+b, 0.8f-b, p.y) * plain;
     col += smoothstep(0.8f-b, 1.0f+b, p.y) * smoothstep(1.0f+b, 1.0f-b, p.y) * snow;
     col = normalize(col);
-    frag_colour = vec4(col, 1);
+    frag_colour = vec4(nor, 1);
 }
