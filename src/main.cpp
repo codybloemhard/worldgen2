@@ -72,11 +72,9 @@ void init(){
             auto p0 = from_arr(vertices->data, r0 * 3);
             auto p1 = from_arr(vertices->data, r1 * 3);
             auto p2 = from_arr(vertices->data, r2 * 3);
-            auto q0 = from_arr(vertices->data, r0 * 3);
-            auto q1 = from_arr(vertices->data, r2 * 3);
-            auto q2 = from_arr(vertices->data, r3 * 3);
+            auto p3 = from_arr(vertices->data, r3 * 3);
             auto pn = glm::normalize(glm::cross(p1-p0,p2-p0));
-            auto qn = glm::normalize(glm::cross(q1-q0,q2-q0));
+            auto qn = glm::normalize(glm::cross(p2-p0,p3-p0));
             count[r0] += 2;
             norms[r0] += pn + qn;
             count[r1]++;
