@@ -69,7 +69,7 @@ class Terrain{
             normals->data[i * 3 + 1] = norms[i].y;
             normals->data[i * 3 + 2] = norms[i].z;
         }
-        
+
         vao = new VAO();
         vao->bind();
         auto vbo = new GBO<float>(GL_ARRAY_BUFFER);
@@ -94,9 +94,53 @@ class Terrain{
         shader->Use();
         shader->set_float("height", height);
         shader->set_float3("light_dir", 0.0f, -1.0f, 0.0f);
-        cam->apply_mvp(shader);
+        shader->set_mat4("model", glm::mat4(1.0f));
+        cam->apply_vp(shader);
         vao->bind();
         glDrawElements(GL_TRIANGLES, size*size*6, GL_UNSIGNED_INT, 0);
+    }
+};
+class Sea{
+    private:
+    VAO *vao;
+    Shader *shader;
+    float height;
+    public:
+    Sea(float height){
+        this->height = height;
+        vao = new VAO();
+        vao->bind();
+        auto vertices = new Buffer(new float[12] {
+            -1.0f, -1.0f, -1.0f,
+            +1.0f, -1.0f, -1.0f,
+            -1.0f, -1.0f, +1.0f,
+            +1.0f, -1.0f, +1.0f,
+        }, 12);
+        auto indices = new Buffer(new uint[6] {
+            0, 1, 2, 1, 3, 2
+        }, 6);
+        auto vbo = new GBO<float>(GL_ARRAY_BUFFER);
+        vbo->bind();
+        vbo->stuff(vertices);
+        vbo->upload(GL_STATIC_DRAW);
+        auto ebo = new GBO<uint>(GL_ELEMENT_ARRAY_BUFFER);
+        ebo->bind();
+        ebo->stuff(indices);
+        ebo->upload(GL_STATIC_DRAW);
+        
+        vao->add_ebo(ebo);
+        add_vaa(vbo, 0, 3, GL_FLOAT, GL_FALSE, 0);
+        vao->unbind();
+        shader = new Shader("shaders/sea.vs", "shaders/colour.fs");
+    }
+    void draw(FpsCamera* cam){
+        shader->Use();
+        shader->set_float4("colour", 0.2f, 0.2f, 0.7f, 0.9f);
+        shader->set_float("height", height);
+        shader->set_float("size", 1000.0f);
+        shader->set_mat4("model", glm::mat4(1.0f));
+        cam->apply_vp(shader);
+        vao->bind();
     }
 };
 #endif

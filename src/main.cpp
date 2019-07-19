@@ -13,9 +13,8 @@ void render(), init(), exit();
 void input(GLFWwindow*, float, float, float);
 
 Terrain *terrain;
-static VAO *sea;
-static Shader *sea_shader;
-static FpsCamera *cam;
+Sea *sea;
+FpsCamera *cam;
 
 int main(){
     printf("Henlo Frens!\n");
@@ -29,32 +28,7 @@ int main(){
 
 void init(){
     terrain = new Terrain();
-    {
-        sea = new VAO();
-        sea->bind();
-        auto vertices = new Buffer(new float[12] {
-            -1.0f, -1.0f, -1.0f,
-            +1.0f, -1.0f, -1.0f,
-            -1.0f, -1.0f, +1.0f,
-            +1.0f, -1.0f, +1.0f,
-        }, 12);
-        auto indices = new Buffer(new uint[6] {
-            0, 1, 2, 1, 3, 2
-        }, 6);
-        auto vbo = new GBO<float>(GL_ARRAY_BUFFER);
-        vbo->bind();
-        vbo->stuff(vertices);
-        vbo->upload(GL_STATIC_DRAW);
-        auto ebo = new GBO<uint>(GL_ELEMENT_ARRAY_BUFFER);
-        ebo->bind();
-        ebo->stuff(indices);
-        ebo->upload(GL_STATIC_DRAW);
-        
-        sea->add_ebo(ebo);
-        add_vaa(vbo, 0, 3, GL_FLOAT, GL_FALSE, 0);
-        sea->unbind();
-    }
-    sea_shader = new Shader("shaders/sea.vs", "shaders/colour.fs");
+    sea = new Sea(terrain->height * 0.2f);
     cam = new FpsCamera();
     cam->move_sens = 20.0f;
     cam->fov = 45.0f;
@@ -72,13 +46,8 @@ void render(){
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     terrain->draw(cam);
+    sea->draw(cam);
 
-    sea_shader->Use();
-    sea_shader->set_float4("colour", 0.2f, 0.2f, 0.7f, 0.9f);
-    sea_shader->set_float("height", terrain->height * 0.2f);
-    sea_shader->set_float("size", 1000.0f);
-    cam->apply_mvp(sea_shader);
-    sea->bind();
     //glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 

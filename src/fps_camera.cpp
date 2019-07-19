@@ -36,7 +36,7 @@ void FpsCamera::input(GLFWwindow *window, float elaps, float xpos, float ypos){
         pitch = -89.99f;
 }
 
-void FpsCamera::apply_mvp(Shader *shader){
+void FpsCamera::apply_vp(Shader *shader){
     glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
     camdir.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
     camdir.y = sin(glm::radians(pitch));
@@ -47,7 +47,6 @@ void FpsCamera::apply_mvp(Shader *shader){
     
     glm::mat4 view = glm::lookAt(campos, campos + camdir, camup);
     glm::mat4 proj = glm::perspective(glm::radians(fov), aspect, near, far);
-    shader->set_mat4("model", glm::mat4(1.0f));
     shader->set_mat4("view", view);
     shader->set_mat4("proj", proj);
 }
