@@ -91,7 +91,7 @@ class Terrain{
         shader = new Shader("shaders/terrain.vs", "shaders/terrain.fs");
     }
     void draw(FpsCamera *cam){
-        shader->Use();
+        shader->use();
         shader->set_float("height", height);
         shader->set_float3("light_dir", 0.0f, -1.0f, 0.0f);
         shader->set_mat4("model", glm::mat4(1.0f));
@@ -133,14 +133,68 @@ class Sea{
         vao->unbind();
         shader = new Shader("shaders/sea.vs", "shaders/colour.fs");
     }
-    void draw(FpsCamera* cam){
-        shader->Use();
+    void draw(FpsCamera *cam){
+        shader->use();
         shader->set_float4("colour", 0.2f, 0.2f, 0.7f, 0.9f);
         shader->set_float("height", height);
         shader->set_float("size", 1000.0f);
         shader->set_mat4("model", glm::mat4(1.0f));
         cam->apply_vp(shader);
         vao->bind();
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    }
+};
+class Sky{
+    private:
+    VAO *vao;
+    Shader *shader;
+    public:
+    Sky(){
+        vao = new VAO();
+        vao->bind();
+        auto vertices = new Buffer(new float[24]{
+            -1.0f, -1.0f, -1.0f,
+            +1.0f, -1.0f, -1.0f,
+            +1.0f, +1.0f, -1.0f,
+            -1.0f, +1.0f, -1.0f,
+            -1.0f, -1.0f, +1.0f,
+            +1.0f, -1.0f, +1.0f,
+            +1.0f, +1.0f, +1.0f,
+            -1.0f, +1.0f, +1.0f
+        }, 24);
+        auto indices = new Buffer(new uint[36]{
+            0, 1, 3,
+            3, 1, 2,
+            1, 5, 2,
+            2, 5, 6,
+            5, 4, 6,
+            6, 4, 7,
+            4, 0, 7,
+            7, 0, 3,
+            3, 2, 7,
+            7, 2, 6,
+            4, 5, 0,
+            0, 5, 1
+        }, 36);
+        auto vbo = new GBO<float>(GL_ARRAY_BUFFER);
+        vbo->bind();
+        vbo->stuff(vertices);
+        vbo->upload(GL_STATIC_DRAW);
+        auto ebo = new GBO<uint>(GL_ELEMENT_ARRAY_BUFFER);
+        ebo->bind();
+        ebo->stuff(indices);
+        ebo->upload(GL_STATIC_DRAW);
+        vao->add_ebo(ebo);
+        add_vaa(vbo, 0, 3, GL_FLOAT, GL_FALSE, 0);
+        vao->unbind();
+        shader = new Shader("shaders/mvp.vs", "shaders/basic.fs");
+    }
+    void draw(FpsCamera *cam){
+        shader->use();
+        shader->set_mat4("model", glm::mat4(1.0f));
+        cam->apply_vp(shader);
+        vao->bind();
+        glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
     }
 };
 #endif

@@ -35,11 +35,11 @@ Shader::Shader(const char* vs, const char* fs){
     glDeleteShader(Shader::fs);
 }
 
-void Shader::Use(){
+void Shader::use(){
     glUseProgram(sh);
 }
 
-void Shader::Unuse(){
+void Shader::unuse(){
     glUseProgram(0);
 }
 

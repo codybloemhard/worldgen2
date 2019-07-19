@@ -14,6 +14,7 @@ void input(GLFWwindow*, float, float, float);
 
 Terrain *terrain;
 Sea *sea;
+Sky *sky;
 FpsCamera *cam;
 
 int main(){
@@ -29,6 +30,7 @@ int main(){
 void init(){
     terrain = new Terrain();
     sea = new Sea(terrain->height * 0.2f);
+    sky = new Sky();
     cam = new FpsCamera();
     cam->move_sens = 20.0f;
     cam->fov = 45.0f;
@@ -45,11 +47,10 @@ void render(){
     glClearColor(0.0, 0.0, 0.0, 0.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    //glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+    sky->draw(cam);
     terrain->draw(cam);
     sea->draw(cam);
-
-    //glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
     glBindVertexArray(0);
 }

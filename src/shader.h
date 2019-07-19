@@ -13,7 +13,7 @@
 class Shader{
     public:
     Shader(const char* vs, const char* fs);
-    void Use(), Unuse();
+    void use(), unuse();
     void set_float(const char*, const float&);
     void set_float2(const char*, const float&, const float&);
     void set_float3(const char*, const float&, const float&, const float&);
