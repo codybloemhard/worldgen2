@@ -149,10 +149,14 @@ class Sky{
     VAO *vao;
     Shader *shader;
     public:
-    glm::vec3 topcol, botcol;
+    glm::vec3 top_color, bot_color, horizon_color;
+    float dome_sharpness, horizon_sharpness;
     Sky(){
-        topcol = glm::vec3(0.2f,0.7f,0.8f);
-        botcol = glm::vec3(0.0f,1.0f,1.0f);
+        top_color = glm::vec3(0.2f,0.7f,0.8f);
+        bot_color = glm::vec3(0.0f,1.0f,1.0f);
+        horizon_color = glm::vec3(0.5f,1.0f,1.0f);
+        dome_sharpness = 5;
+        horizon_sharpness = 30;
         vao = new VAO();
         vao->bind();
         auto vertices = new Buffer(new float[24]{
@@ -195,8 +199,11 @@ class Sky{
     void draw(FpsCamera *cam){
         glDepthMask(GL_FALSE);
         shader->use();
-        shader->set_float3("top_color", topcol);
-        shader->set_float3("bot_color", botcol);
+        shader->set_float3("top_color", top_color);
+        shader->set_float3("bot_color", bot_color);
+        shader->set_float3("hor_color", horizon_color);
+        shader->set_float("dome_sharpness", dome_sharpness);
+        shader->set_float("horizon_sharpness", horizon_sharpness);
         cam->apply_vp(shader, false);
         vao->bind();
         glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
