@@ -187,14 +187,15 @@ class Sky{
         vao->add_ebo(ebo);
         add_vaa(vbo, 0, 3, GL_FLOAT, GL_FALSE, 0);
         vao->unbind();
-        shader = new Shader("shaders/mvp.vs", "shaders/basic.fs");
+        shader = new Shader("shaders/sky.vs", "shaders/sky.fs");
     }
     void draw(FpsCamera *cam){
+        glDepthMask(GL_FALSE);
         shader->use();
-        shader->set_mat4("model", glm::mat4(1.0f));
-        cam->apply_vp(shader);
+        cam->apply_vp(shader, false);
         vao->bind();
         glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+        glDepthMask(GL_TRUE);
     }
 };
 #endif

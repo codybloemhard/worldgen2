@@ -33,7 +33,7 @@ void init(){
     sky = new Sky();
     cam = new FpsCamera();
     cam->move_sens = 20.0f;
-    cam->fov = 45.0f;
+    cam->fov = 80.0f;
 }
 
 void update(float elaps){
