@@ -149,7 +149,10 @@ class Sky{
     VAO *vao;
     Shader *shader;
     public:
+    glm::vec3 topcol, botcol;
     Sky(){
+        topcol = glm::vec3(0.2f,0.7f,0.8f);
+        botcol = glm::vec3(0.0f,1.0f,1.0f);
         vao = new VAO();
         vao->bind();
         auto vertices = new Buffer(new float[24]{
@@ -192,6 +195,8 @@ class Sky{
     void draw(FpsCamera *cam){
         glDepthMask(GL_FALSE);
         shader->use();
+        shader->set_float3("top_color", topcol);
+        shader->set_float3("bot_color", botcol);
         cam->apply_vp(shader, false);
         vao->bind();
         glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);

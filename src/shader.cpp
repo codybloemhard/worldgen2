@@ -58,6 +58,11 @@ void Shader::set_float3(const char *name, const float &x, const float &y, const 
     glUniform3f(ul, x, y, z);
 }
 
+void Shader::set_float3(const char *name, const glm::vec3 &vec){
+    auto ul = uniloc(name);
+    glUniform3f(ul, vec.x, vec.y, vec.z);
+}
+
 void Shader::set_float4(const char *name, const float &x, const float &y, const float &z, const float &w){
     auto ul = uniloc(name);
     glUniform4f(ul, x, y, z, w);

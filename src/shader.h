@@ -17,6 +17,7 @@ class Shader{
     void set_float(const char*, const float&);
     void set_float2(const char*, const float&, const float&);
     void set_float3(const char*, const float&, const float&, const float&);
+    void set_float3(const char*, const glm::vec3&);
     void set_float4(const char*, const float&, const float&, const float&, const float&);
     void set_int(const char*, const int&);
     void set_int2(const char*, const int&, const int&);
