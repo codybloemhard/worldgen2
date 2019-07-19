@@ -19,3 +19,7 @@ void VAO::unbind(){
 void VAO::add_ebo(GBO<uint>* ebo){
     ebo->bind();
 }
+
+glm::vec3 from_arr(float *arr, uint n){
+    return glm::vec3(arr[n+0],arr[n+1],arr[n+2]);
+}

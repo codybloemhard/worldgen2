@@ -3,6 +3,9 @@
 #include "../deps/glad/glad.h"
 #include "/usr/include/GLFW/glfw3.h"
 #include <vector>
+#include "../deps/glm/glm.hpp"
+#include "../deps/glm/gtc/matrix_transform.hpp"
+#include "../deps/glm/gtc/type_ptr.hpp"
 
 template <typename T>
 class Buffer{
@@ -73,5 +76,7 @@ class VAO{
     private:
     GLuint vao;
 };
+
+glm::vec3 from_arr(float *arr, uint n);
 
 #endif
