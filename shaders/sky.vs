@@ -6,5 +6,5 @@ out vec3 pos;
 
 void main(){
     pos = vp;
-    gl_Position = proj * view * vec4(vp, 1.0);
+    gl_Position = (proj * view * vec4(vp, 1.0)).xyww;
 }

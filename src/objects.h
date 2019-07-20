@@ -9,7 +9,7 @@ class Terrain{
     SimplexNoise noise;
     Shader *shader;
     public:
-    uint size = 640;
+    uint size = 1024;
     float scale = 0.003f, height = 64.0f;
     Terrain(){
         noise = SimplexNoise();
@@ -131,7 +131,7 @@ class Sea{
         vao->add_ebo(ebo);
         add_vaa(vbo, 0, 3, GL_FLOAT, GL_FALSE, 0);
         vao->unbind();
-        shader = new Shader("shaders/sea.vs", "shaders/colour.fs");
+        shader = new Shader("shaders/sea.vs", "shaders/sea.fs");
     }
     void draw(FpsCamera *cam){
         shader->use();
@@ -196,8 +196,10 @@ class Sky{
         vao->unbind();
         shader = new Shader("shaders/sky.vs", "shaders/sky.fs");
     }
+    //needs to be drawn last
     void draw(FpsCamera *cam){
         glDepthMask(GL_FALSE);
+        glDepthFunc(GL_LEQUAL);
         shader->use();
         shader->set_float3("top_color", top_color);
         shader->set_float3("bot_color", bot_color);
@@ -207,6 +209,7 @@ class Sky{
         cam->apply_vp(shader, false);
         vao->bind();
         glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+        glDepthFunc(GL_LESS);
         glDepthMask(GL_TRUE);
     }
 };

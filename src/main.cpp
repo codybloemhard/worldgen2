@@ -33,7 +33,8 @@ void init(){
     sky = new Sky();
     cam = new FpsCamera();
     cam->move_sens = 20.0f;
-    cam->fov = 80.0f;
+    cam->fov = 45.0f;
+    cam->far = 5000.0f;
 }
 
 void update(float elaps){
@@ -48,9 +49,9 @@ void render(){
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     //glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
-    sky->draw(cam);
     terrain->draw(cam);
     sea->draw(cam);
+    sky->draw(cam);
 
     glBindVertexArray(0);
 }
