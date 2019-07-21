@@ -65,8 +65,8 @@ void render(){
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     //glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
-    terrain->dep_draw(cam);
-    
+    terrain->draw(cam);
+
     glBindTexture(GL_TEXTURE_2D, tex);
     glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, 1600, 900);
     glBindTexture(GL_TEXTURE_2D, 0);

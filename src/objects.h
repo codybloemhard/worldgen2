@@ -91,6 +91,11 @@ class Terrain{
         shader = new Shader("shaders/terrain.vs", "shaders/terrain.fs");
         depshader = new Shader("shaders/dep.vs", "shaders/dep.fs");
     }
+    ~Terrain(){
+        delete vao;
+        delete shader;
+        delete depshader;
+    }
     void draw(FpsCamera *cam){
         shader->use();
         shader->set_float("height", height);
@@ -141,6 +146,10 @@ class Sea{
         add_vaa(vbo, 0, 3, GL_FLOAT, GL_FALSE, 0);
         vao->unbind();
         shader = new Shader("shaders/sea.vs", "shaders/sea.fs");
+    }
+    ~Sea(){
+        delete vao;
+        delete shader;
     }
     void draw(FpsCamera *cam, GLuint deptex){
         glBindTexture(GL_TEXTURE_2D, deptex);
@@ -205,6 +214,10 @@ class Sky{
         add_vaa(vbo, 0, 3, GL_FLOAT, GL_FALSE, 0);
         vao->unbind();
         shader = new Shader("shaders/sky.vs", "shaders/sky.fs");
+    }
+    ~Sky(){
+        delete vao;
+        delete shader;
     }
     //needs to be drawn last
     void draw(FpsCamera *cam){
