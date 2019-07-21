@@ -22,7 +22,11 @@ void FpsCamera::input(GLFWwindow *window, float elaps, float xpos, float ypos){
         campos += up * elaps * move_sens;
     if(glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
         campos -= up * elaps * move_sens;
-    
+    if(firstmouse){
+        lastx = xpos;
+        lasty = ypos;
+        firstmouse = false;
+    }
     float dx = xpos - lastx;
     float dy = lasty - ypos;
     lastx = xpos;

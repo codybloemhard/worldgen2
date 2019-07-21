@@ -18,6 +18,7 @@ class FpsCamera{
     glm::vec3 campos = glm::vec3(0.0f, 0.0f, 0.0f);
     private:
     float pitch, yaw, lastx, lasty;
+    bool firstmouse = true;
     glm::vec3 camdir = glm::vec3(0.0f),
                 camup = glm::vec3(0.0f),
                 camri = glm::vec3(0.0f);
