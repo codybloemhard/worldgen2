@@ -11,5 +11,6 @@ void main(){
     p.x *= size;
     p.z *= size;
     p.y = height;
+    vec4 glpos = 
     gl_Position = proj * view * model * vec4(p, 1.0);
 }

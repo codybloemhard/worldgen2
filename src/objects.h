@@ -7,7 +7,7 @@ class Terrain{
     private:
     VAO *vao;
     SimplexNoise noise;
-    Shader *shader;
+    Shader *shader, *depshader;
     public:
     uint size = 1024;
     float scale = 0.003f, height = 64.0f;
@@ -89,6 +89,7 @@ class Terrain{
         add_vaa(nbo, 1, 3, GL_FLOAT, GL_FALSE, 0);
         vao->unbind();
         shader = new Shader("shaders/terrain.vs", "shaders/terrain.fs");
+        depshader = new Shader("shaders/dep.vs", "shaders/dep.fs");
     }
     void draw(FpsCamera *cam){
         shader->use();
@@ -96,6 +97,14 @@ class Terrain{
         shader->set_float3("light_dir", 0.0f, -1.0f, 0.0f);
         shader->set_mat4("model", glm::mat4(1.0f));
         cam->apply_vp(shader);
+        vao->bind();
+        glDrawElements(GL_TRIANGLES, size*size*6, GL_UNSIGNED_INT, 0);
+    }
+    void dep_draw(FpsCamera *cam){
+        depshader->use();
+        depshader->set_float3("campos", cam->campos);
+        depshader->set_mat4("model", glm::mat4(1.0f));
+        cam->apply_vp(depshader);
         vao->bind();
         glDrawElements(GL_TRIANGLES, size*size*6, GL_UNSIGNED_INT, 0);
     }
@@ -133,7 +142,8 @@ class Sea{
         vao->unbind();
         shader = new Shader("shaders/sea.vs", "shaders/sea.fs");
     }
-    void draw(FpsCamera *cam){
+    void draw(FpsCamera *cam, GLuint deptex){
+        glBindTexture(GL_TEXTURE_2D, deptex);
         shader->use();
         shader->set_float4("colour", 0.2f, 0.2f, 0.7f, 0.9f);
         shader->set_float("height", height);
