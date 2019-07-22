@@ -21,6 +21,8 @@ void main(){
     spos.y = spos.y / 900;
     float td = texture(tex, spos).x;
     float sd = distance(campos, pos) / 500;
-    float seadep = max(0, td - sd);
-    frag_colour = vec4(col.xyz, col.w * seadep * 50);
+    float seadep = (td - sd) * 5;
+    float trans = min(1, 0.5 + seadep);
+    frag_colour = vec4(col.xyz, trans);
+    //frag_colour = vec4(vec3(td), 1);
 }

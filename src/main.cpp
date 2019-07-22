@@ -38,7 +38,7 @@ void init(){
     sky = new Sky();
     cam = new FpsCamera();
     cam->move_sens = 20.0f;
-    cam->fov = 45.0f;
+    cam->fov = 80.0f;
     cam->far = 5000.0f;
     
     glGenTextures(1, &tex);
