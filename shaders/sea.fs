@@ -1,11 +1,13 @@
 #version 400
 uniform vec4 colour;
+uniform vec3 campos;
 uniform sampler2D tex;
+in vec3 pos;
 out vec4 frag_colour;
 
 float near = 0.1; 
 float far  = 5000.0; 
-  
+
 float lindep(float depth) 
 {
     float z = depth * 2.0 - 1.0;
@@ -14,11 +16,11 @@ float lindep(float depth)
 
 void main(){
     vec4 col = colour;
-    vec4 dcol = texture(tex, gl_FragCoord.xy);
-    dcol.x = lindep(dcol.x);
-    dcol.y = lindep(dcol.y);
-    dcol.z = lindep(dcol.z);
-    dcol.w = lindep(dcol.w);
-    float e = lindep(gl_FragCoord.z);
-    frag_colour = vec4(vec3(dcol.w / 500), 1);
+    vec2 spos = gl_FragCoord.xy;
+    spos.x = spos.x / 1600;
+    spos.y = spos.y / 900;
+    float td = texture(tex, spos).x;
+    float sd = distance(campos, pos) / 500;
+    float seadep = max(0, td - sd);
+    frag_colour = vec4(col.xyz, col.w * seadep * 50);
 }
