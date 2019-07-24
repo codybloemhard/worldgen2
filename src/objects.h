@@ -151,7 +151,7 @@ class Sea{
         delete vao;
         delete shader;
     }
-    void draw(FpsCamera *cam, GLuint deptex, uint ww, uint wh){
+    void draw(FpsCamera *cam, GLuint deptex, uint ww, uint wh, float time){
         glBindTexture(GL_TEXTURE_2D, deptex);
         shader->use();
         shader->set_float4("colour", 0.2f, 0.2f, 0.7f, 0.9f);
@@ -160,6 +160,7 @@ class Sea{
         shader->set_float3("campos", cam->campos);
         shader->set_float3("light_dir", 0.0f, -1.0f, 0.0f);
         shader->set_float2("tex_size", (float)ww, (float)wh);
+        shader->set_float("t", time);
         shader->set_mat4("model", glm::mat4(1.0f));
         cam->apply_vp(shader);
         vao->bind();

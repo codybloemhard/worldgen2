@@ -21,6 +21,7 @@ Sky *sky;
 FpsCamera *cam;
 
 GLuint fbo, tex;
+float gametime = 0.0f;
 
 int main(){
     printf("Henlo Frens!\n");
@@ -52,7 +53,7 @@ void init(){
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex, 0);
     glBindTexture(GL_TEXTURE, 0);
-    
+
     unsigned int rbo;
     glGenRenderbuffers(1, &rbo);
     glBindRenderbuffer(GL_RENDERBUFFER, rbo);
@@ -66,7 +67,7 @@ void init(){
 }
 
 void update(float elaps){
-    
+    gametime += elaps;
 }
 
 void render(){
@@ -86,7 +87,7 @@ void render(){
     glClearColor(0.0, 0.0, 0.0, 0.0);
     terrain->dep_draw(cam);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    sea->draw(cam, tex, ww, wh);
+    sea->draw(cam, tex, ww, wh, gametime);
     sky->draw(cam);
     glBindVertexArray(0);
 }
