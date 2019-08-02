@@ -12,8 +12,8 @@ void update(float);
 void render(), init(), exit();
 void input(GLFWwindow*, float, float, float);
 
-uint ww = 1600, wh = 900;
-//uint ww = 2560, wh = 1440;
+//uint ww = 1600, wh = 900;
+uint ww = 2560, wh = 1440;
 
 Terrain *terrain;
 Sea *sea;

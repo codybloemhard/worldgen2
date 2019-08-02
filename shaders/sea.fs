@@ -59,10 +59,15 @@ float snoise(vec3 v){
                                 dot(p2,x2), dot(p3,x3)));
 }
 
+float wave(vec3 pos){
+    return snoise(pos);
+}
+
 float diff = 0.4;
 float wave_scale = 0.05;
 float wave_height = 8;
 float wave_speed = 0.3;
+float wave_shadow = 0.3;
 
 void main(){
     //depth
@@ -76,16 +81,16 @@ void main(){
     float trans = clamp((1 - diff) + seadep, 0, col.w);
     //wave normals
     float t = time * wave_speed;
-    vec3 p0 = vec3(pos.x, snoise(vec3(pos.x*wave_scale, t, pos.z*wave_scale)) * wave_height, pos.z);
-    vec3 p1 = vec3(pos.x + 0.01, snoise(vec3((pos.x + 0.01)*wave_scale, t, pos.z*wave_scale)) * wave_height, pos.z);
-    vec3 p2 = vec3(pos.x, snoise(vec3(pos.x*wave_scale, t, (pos.z + 0.01)*wave_scale)) * wave_height, pos.z + 0.01);
+    vec3 p0 = vec3(pos.x, wave(vec3(pos.x*wave_scale, t, pos.z*wave_scale)) * wave_height, pos.z);
+    vec3 p1 = vec3(pos.x + 0.01, wave(vec3((pos.x + 0.01)*wave_scale, t, pos.z*wave_scale)) * wave_height, pos.z);
+    vec3 p2 = vec3(pos.x, wave(vec3(pos.x*wave_scale, t, (pos.z + 0.01)*wave_scale)) * wave_height, pos.z + 0.01);
     vec3 normal = cross(p1-p0,p2-p0);
     normal = normalize(normal);
     //light
-    float light = 0.5 + (max(dot(normal, light_dir), 0.0)) * 0.5;
+    float light = (1 - wave_shadow) + (max(dot(normal, light_dir), 0.0)) * wave_shadow;
     vec3 view_dir = normalize(campos - pos);
     vec3 reflect_dir = reflect(-light_dir, normal);
-    float spec = pow(max(dot(view_dir, reflect_dir), 0), 32) * 0.5;
+    float spec = pow(max(dot(view_dir, reflect_dir), 0), 64) * 0.5;
     light += spec;
 
     frag_colour = vec4(col.xyz * light, trans);
