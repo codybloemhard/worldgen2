@@ -21,7 +21,7 @@ void main(){
     float h = p.y;
     vec3 sand = vec3(0.79f,0.58f,0.21f);
     vec3 grass = normalize(vec3(0.27f,0.48f,0.19f));
-    vec3 plain = normalize(vec3(0.36f,0.22f,0.19f)) / 2;
+    vec3 plain = normalize(vec3(0.36f,0.22f,0.19f));
     vec3 snow = vec3(0.9f);
     
     float b = 0.09f;
@@ -30,12 +30,12 @@ void main(){
     cband = band(h, 0, 0.25, b); totalband += cband;
     col += cband * sand;
     cband = band(h, 0.25, 0.6, b); totalband += cband;
-    col += cband * mixlayer(plain, grass, 0.7, 0.3);
+    col += cband * mixlayer(plain, grass, 0.6, 0.4);
     cband = band(h, 0.6, 0.8, b); totalband += cband;
     col += cband * plain;
     cband = band(h, 0.8, 1.0, b); totalband += cband;
     col += cband * snow;
     col /= totalband;
     float lpow = max(dot(nor, light_dir), 0.0);
-    frag_colour = vec4(col, 1);
+    frag_colour = vec4(col * lpow, 1);
 }

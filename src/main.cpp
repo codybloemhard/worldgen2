@@ -12,8 +12,8 @@ void update(float);
 void render(), init(), exit();
 void input(GLFWwindow*, float, float, float);
 
-//uint ww = 1600, wh = 900;
-uint ww = 2560, wh = 1440;
+uint ww = 1600, wh = 900;
+//uint ww = 2560, wh = 1440;
 
 Terrain *terrain;
 Sea *sea;
@@ -41,6 +41,7 @@ void init(){
     cam->move_sens = 20.0f;
     cam->fov = 45.0f;
     cam->far = 5000.0f;
+    WorldState::Get().sun_dir = glm::normalize(glm::vec3(0.5f, -1.0f, q0.5f));
     
     glGenFramebuffers(1, &fbo);
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);

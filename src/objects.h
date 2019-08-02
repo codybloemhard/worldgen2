@@ -3,6 +3,20 @@
 #include "shader.h"
 #include "glstuff.h"
 #include "fps_camera.h"
+
+class WorldState{
+    private:
+    WorldState(){}
+    public:
+    static WorldState& Get(){
+        static WorldState inst;
+        return inst;
+    }
+    WorldState(WorldState const&) = delete;
+    void operator=(WorldState const&) = delete;
+    //all variables
+    glm::vec3 sun_dir;
+};
 class Terrain{
     private:
     VAO *vao;
@@ -99,7 +113,7 @@ class Terrain{
     void draw(FpsCamera *cam){
         shader->use();
         shader->set_float("height", height);
-        shader->set_float3("light_dir", 0.0f, -1.0f, 0.0f);
+        shader->set_float3("light_dir", WorldState::Get().sun_dir);
         shader->set_mat4("model", glm::mat4(1.0f));
         cam->apply_vp(shader);
         vao->bind();
@@ -158,7 +172,7 @@ class Sea{
         shader->set_float("height", height);
         shader->set_float("size", 1000.0f);
         shader->set_float3("campos", cam->campos);
-        shader->set_float3("light_dir", 0.0f, -1.0f, 0.0f);
+        shader->set_float3("light_dir", WorldState::Get().sun_dir);
         shader->set_float2("tex_size", (float)ww, (float)wh);
         shader->set_float("time", time);
         shader->set_mat4("model", glm::mat4(1.0f));
@@ -233,6 +247,9 @@ class Sky{
         shader->set_float3("hor_color", horizon_color);
         shader->set_float("dome_sharpness", dome_sharpness);
         shader->set_float("horizon_sharpness", horizon_sharpness);
+        shader->set_float3("light_dir", WorldState::Get().sun_dir);
+        shader->set_float3("sun_color", 1, 1, 1);
+        shader->set_float("sun_power", 512);
         cam->apply_vp(shader, false);
         vao->bind();
         glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
