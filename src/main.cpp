@@ -41,7 +41,7 @@ void init(){
     cam->move_sens = 20.0f;
     cam->fov = 45.0f;
     cam->far = 5000.0f;
-    WorldState::Get().sun_dir = glm::normalize(glm::vec3(0.5f, -1.0f, q0.5f));
+    WorldState::Get().sun_dir = glm::normalize(glm::vec3(0.5f, -1.0f, 0.5f));
     
     glGenFramebuffers(1, &fbo);
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
