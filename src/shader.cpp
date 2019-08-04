@@ -1,6 +1,6 @@
 #include "shader.h"
 
-Shader::Shader(const char* vs, const char* fs){
+Shader::Shader(const char* vs, const char* fs, const char* gs){
     std::ifstream ifvs(vs);
     std::string svs((std::istreambuf_iterator<char>(ifvs)),
                  std::istreambuf_iterator<char>());
@@ -11,17 +11,31 @@ Shader::Shader(const char* vs, const char* fs){
                  std::istreambuf_iterator<char>());
     const char* rfs = sfs.c_str();
 
+    const char* rgs;
+    if(gs != nullptr){
+        std::ifstream ifgs(gs);
+        std::string sgs((std::istreambuf_iterator<char>(ifgs)),
+                    std::istreambuf_iterator<char>());
+        rgs = sgs.c_str();
+    }
+
     Shader::vs = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(Shader::vs, 1, &rvs, NULL);
     glCompileShader(Shader::vs);
-
     bool ok = check_error(Shader::vs, "Vertex");
 
     Shader::fs = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(Shader::fs, 1, &rfs, NULL);
     glCompileShader(Shader::fs);
-
     ok &= check_error(Shader::fs, "Fragment");
+
+    if(gs != nullptr){
+        Shader::gs = glCreateShader(GL_GEOMETRY_SHADER);
+        glShaderSource(Shader::gs, 1, &rgs, NULL);
+        glCompileShader(Shader::gs);
+        ok &= check_error(Shader::gs, "Geometry");
+    }
+
     if(!ok){
         Shader::sh = 0;
         return;
@@ -30,9 +44,13 @@ Shader::Shader(const char* vs, const char* fs){
     Shader::sh = glCreateProgram();
     glAttachShader(Shader::sh, Shader::fs);
     glAttachShader(Shader::sh, Shader::vs);
+    if(gs != nullptr)
+        glAttachShader(Shader::sh, Shader::gs);
     glLinkProgram(Shader::sh);
     glDeleteShader(Shader::vs);
     glDeleteShader(Shader::fs);
+    if(gs != nullptr)wq
+        glDeleteShader(Shader::gs);
 }
 
 void Shader::use(){

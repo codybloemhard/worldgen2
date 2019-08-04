@@ -12,7 +12,7 @@
 
 class Shader{
     public:
-    Shader(const char* vs, const char* fs);
+    Shader(const char* vs, const char* fs, const char* gs);
     void use(), unuse();
     void set_float(const char*, const float&);
     void set_float2(const char*, const float&, const float&);
@@ -29,7 +29,7 @@ class Shader{
     void set_uint4(const char*, const uint&, const uint&, const uint&, const uint&);
     void set_mat4(const char*, const glm::mat4 &mat);
     private:
-    GLuint vs, fs, sh;
+    GLuint vs, fs, gs, sh;
     std::map<const char*, int> unimap;
     enum Type { vertex, fragment };
     bool check_error(GLuint shader, const char* typ);
