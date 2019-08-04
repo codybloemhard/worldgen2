@@ -11,13 +11,16 @@ Shader::Shader(const char* vs, const char* fs, const char* gs){
                  std::istreambuf_iterator<char>());
     const char* rfs = sfs.c_str();
 
-    const char* rgs;
+    std::string gstr;
     if(gs != nullptr){
         std::ifstream ifgs(gs);
         std::string sgs((std::istreambuf_iterator<char>(ifgs)),
                     std::istreambuf_iterator<char>());
-        rgs = sgs.c_str();
+        gstr = sgs;
     }
+    const char* rgs = gstr.c_str();
+    if(rgs != nullptr)
+        printf("%s\n", rgs);
 
     Shader::vs = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(Shader::vs, 1, &rvs, NULL);
@@ -49,7 +52,7 @@ Shader::Shader(const char* vs, const char* fs, const char* gs){
     glLinkProgram(Shader::sh);
     glDeleteShader(Shader::vs);
     glDeleteShader(Shader::fs);
-    if(gs != nullptr)wq
+    if(gs != nullptr)
         glDeleteShader(Shader::gs);
 }
 
@@ -137,7 +140,7 @@ bool Shader::check_error(GLuint shader, const char* typ){
     glGetShaderiv(shader, GL_COMPILE_STATUS, &succ);
     if(!succ){
         glGetShaderInfoLog(Shader::vs, 512, NULL, log);
-        printf("Error: %c shader could not compile:\n", typ);
+        printf("Error: %s shader could not compile:\n", typ);
         printf(log);
         return false;
     }
