@@ -11,10 +11,15 @@ out vec3 nor;
 out vec3 col;
 
 void main(){
-    for(int i = 0; i < 3; i ++){
+    vec3 avg = vec3(0);
+    for(int i = 0; i < 3; i++){
+        avg += gs_in[i].vcol;
+    }
+    avg /= 3;
+    for(int i = 0; i < 3; i++){
         gl_Position = gl_in[i].gl_Position;
         nor = gs_in[i].vnor;
-        col = gs_in[i].vcol;
+        col = avg;
         EmitVertex();
     }
     EndPrimitive();

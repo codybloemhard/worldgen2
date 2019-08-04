@@ -19,8 +19,6 @@ Shader::Shader(const char* vs, const char* fs, const char* gs){
         gstr = sgs;
     }
     const char* rgs = gstr.c_str();
-    if(rgs != nullptr)
-        printf("%s\n", rgs);
 
     Shader::vs = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(Shader::vs, 1, &rvs, NULL);

@@ -102,7 +102,7 @@ class Terrain{
         add_vaa(vbo, 0, 3, GL_FLOAT, GL_FALSE, 0);
         add_vaa(nbo, 1, 3, GL_FLOAT, GL_FALSE, 0);
         vao->unbind();
-        shader = new Shader("shaders/terrain.vs", "shaders/terrain.fs", "shaders/basic.gs");
+        shader = new Shader("shaders/terrain.vs", "shaders/terrain.fs", "shaders/terrain.gs");
         depshader = new Shader("shaders/dep.vs", "shaders/dep.fs", nullptr);
     }
     ~Terrain(){
