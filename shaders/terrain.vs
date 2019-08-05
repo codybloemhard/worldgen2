@@ -5,10 +5,10 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 proj;
 uniform float height;
+uniform vec3 light_dir;
 
 out VertexAttrib{
     vec3 vcol;
-    vec3 vnor;
 }vs_out;
 
 float band(float value, float minh, float maxh, float edge){
@@ -43,6 +43,7 @@ void main(){
     cband = band(h, 0.8, 1.0, b); totalband += cband;
     col += cband * snow;
     col /= totalband;
+    float lpow = max(dot(nor, light_dir), 0.0);
+    col *= lpow;
     vs_out.vcol = col;
-    vs_out.vnor = nor;
 }

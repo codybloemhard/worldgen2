@@ -4,10 +4,8 @@ layout(triangle_strip, max_vertices=3) out;
 
 in VertexAttrib{
     vec3 vcol;
-    vec3 vnor;
 }gs_in[];
 
-out vec3 nor;
 out vec3 col;
 
 void main(){
@@ -18,7 +16,6 @@ void main(){
     avg /= 3;
     for(int i = 0; i < 3; i++){
         gl_Position = gl_in[i].gl_Position;
-        nor = gs_in[i].vnor;
         col = avg;
         EmitVertex();
     }
