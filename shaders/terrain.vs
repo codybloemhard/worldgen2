@@ -24,7 +24,7 @@ vec3 mixlayer(vec3 nor, vec3 botl, vec3 topl, float maxtop, float softness){
 void main(){
     vec4 p = model * vec4(vp, 1.0);
     gl_Position = proj * view * p;
-    vec3 nor = (model * vec4(nr, 1.0)).xyz;
+    vec3 nor = normalize((model * vec4(nr, 1.0)).xyz);
     float h = p.y / height;
     vec3 sand = vec3(0.79f,0.58f,0.21f);
     vec3 grass = normalize(vec3(0.27f,0.48f,0.19f));

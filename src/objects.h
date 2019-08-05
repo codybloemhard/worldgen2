@@ -3,6 +3,7 @@
 #include "shader.h"
 #include "glstuff.h"
 #include "fps_camera.h"
+#include "mathh.h"
 
 class WorldState{
     private:
@@ -20,23 +21,21 @@ class WorldState{
 class Terrain{
     private:
     VAO *vao;
-    SimplexNoise noise;
     Shader *shader, *depshader;
     public:
-    uint size = 1024;
-    float scale = 0.003f, height = 64.0f;
+    uint size = 512;
+    float scale = 0.035f, height = 5.0f;
     Terrain(){
-        noise = SimplexNoise();
         uint vert_len = (size+1)*(size+1);
         auto vertices = new Buffer(new float[vert_len * 3], vert_len * 3);
         for(int i = 0; i < vert_len; i++){
             uint x = (i % (size+1));
             uint y = (i / (size+1));
             vertices->data[i * 3 + 0] = x;
-            float h = noise.fractal(5, x * scale, y * scale);
-            h = h*0.5f+0.5f;
-            h *= h;
-            vertices->data[i * 3 + 1] = h * height;
+            float h = Mathh::noise(x * scale, y * scale);
+            h = h*h*h;
+            h += Mathh::noise(x * scale * 4, y * scale * 4) * 0.3f;
+            vertices->data[i * 3 + 1] = h * height / 1.3f;
             vertices->data[i * 3 + 2] = y;
         }
         uint indi_len = size * size * 6;
