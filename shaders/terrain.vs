@@ -29,7 +29,8 @@ void main(){
     float h = p.y / height;
     vec3 sand = vec3(0.79f,0.58f,0.21f);
     vec3 grass = normalize(vec3(0.27f,0.48f,0.19f));
-    vec3 plain = normalize(vec3(0.36f,0.22f,0.19f));
+    vec3 plain = normalize(vec3(0.41f,0.22f,0.19f));
+    vec3 stone = normalize(vec3(0.4f));
     vec3 snow = vec3(0.9f);
     
     float b = 0.09f;
@@ -40,7 +41,7 @@ void main(){
     cband = band(h, sea_level, 0.6, b); totalband += cband;
     col += cband * mixlayer(nor, plain, grass, 0.6, 0.4);
     cband = band(h, 0.6, 0.8, b); totalband += cband;
-    col += cband * plain;
+    col += cband * mixlayer(nor, stone, plain, 0.6, 0.4);
     cband = band(h, 0.8, 1.0, b); totalband += cband;
     col += cband * snow;
     col /= totalband;

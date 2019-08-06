@@ -25,8 +25,8 @@ class Terrain{
     VAO *vao;
     Shader *shader, *depshader;
     public:
-    uint size = 512;
-    float scale = 0.035f;
+    uint size = 1024;
+    float scale = 0.001f;
     Terrain(){
         uint vert_len = (size+1)*(size+1);
         auto vertices = new Buffer(new float[vert_len * 3], vert_len * 3);
@@ -37,7 +37,10 @@ class Terrain{
             float h = Mathh::noise(x * scale, y * scale);
             h = h*h*h;
             h += Mathh::noise(x * scale * 4, y * scale * 4) * 0.3f;
-            vertices->data[i * 3 + 1] = h * WorldState::Get().world_height / 1.3f;
+            h += Mathh::noise(x * scale * 16, y * scale * 16) * 0.05f;
+            h += Mathh::noise(x * scale * 64, y * scale * 64) * 0.005f;
+            h += Mathh::noise(x * scale * 256, y * scale * 256) * 0.005f;
+            vertices->data[i * 3 + 1] = h * WorldState::Get().world_height / 1.36f;
             vertices->data[i * 3 + 2] = y;
         }
         uint indi_len = size * size * 6;
