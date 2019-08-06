@@ -12,8 +12,9 @@ out VertexAttrib{
     vec3 vcol;
 }vs_out;
 
-float band(float value, float minh, float maxh, float edge){
-    return smoothstep(minh - edge, maxh + edge, value) * smoothstep(maxh + edge, maxh - edge, value);
+float band(float value, float minh, float maxh, float edge_min, float edge_max){
+    return smoothstep(minh - edge_min, maxh + edge_min, value) 
+        * smoothstep(maxh + edge_max, maxh - edge_max, value);
 }
 
 vec3 mixlayer(vec3 nor, vec3 botl, vec3 topl, float maxtop, float softness){
@@ -30,19 +31,21 @@ void main(){
     vec3 sand = vec3(0.79f,0.58f,0.21f);
     vec3 grass = normalize(vec3(0.27f,0.48f,0.19f));
     vec3 plain = normalize(vec3(0.41f,0.22f,0.19f));
-    vec3 stone = normalize(vec3(0.4f));
+    vec3 stone = vec3(0.4f);
+    vec3 moss = vec3(0.11f,0.27f,0.11f);
     vec3 snow = vec3(0.9f);
     
-    float b = 0.09f;
+    float b_leak = 0.4f;
+    float b_stop = 0.05f;
     float cband = 0, totalband = 0;
     vec3 col = vec3(0);
-    cband = band(h, 0, sea_level, b); totalband += cband;
+    cband = band(h, 0, sea_level, b_leak, b_leak); totalband += cband;
     col += cband * sand;
-    cband = band(h, sea_level, 0.6, b); totalband += cband;
+    cband = band(h, sea_level, 0.6, b_stop, b_leak); totalband += cband;
     col += cband * mixlayer(nor, plain, grass, 0.6, 0.4);
-    cband = band(h, 0.6, 0.8, b); totalband += cband;
-    col += cband * mixlayer(nor, stone, plain, 0.6, 0.4);
-    cband = band(h, 0.8, 1.0, b); totalband += cband;
+    cband = band(h, 0.6, 0.8, b_leak, b_stop); totalband += cband;
+    col += cband * mixlayer(nor, stone, moss, 0.8, 0.1);
+    cband = band(h, 0.8, 1.0, b_leak, b_leak); totalband += cband;
     col += cband * snow;
     col /= totalband;
     float lpow = max(dot(nor, light_dir), 0.0);
