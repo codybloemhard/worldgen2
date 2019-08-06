@@ -17,6 +17,8 @@ class WorldState{
     void operator=(WorldState const&) = delete;
     //all variables
     glm::vec3 sun_dir;
+    float sea_level;
+    float world_height;
 };
 class Terrain{
     private:
@@ -24,7 +26,7 @@ class Terrain{
     Shader *shader, *depshader;
     public:
     uint size = 512;
-    float scale = 0.035f, height = 5.0f;
+    float scale = 0.035f;
     Terrain(){
         uint vert_len = (size+1)*(size+1);
         auto vertices = new Buffer(new float[vert_len * 3], vert_len * 3);
@@ -35,7 +37,7 @@ class Terrain{
             float h = Mathh::noise(x * scale, y * scale);
             h = h*h*h;
             h += Mathh::noise(x * scale * 4, y * scale * 4) * 0.3f;
-            vertices->data[i * 3 + 1] = h * height / 1.3f;
+            vertices->data[i * 3 + 1] = h * WorldState::Get().world_height / 1.3f;
             vertices->data[i * 3 + 2] = y;
         }
         uint indi_len = size * size * 6;
@@ -111,7 +113,8 @@ class Terrain{
     }
     void draw(FpsCamera *cam){
         shader->use();
-        shader->set_float("height", height);
+        shader->set_float("height", WorldState::Get().world_height);
+        shader->set_float("sea_level", WorldState::Get().sea_level);
         shader->set_float3("light_dir", WorldState::Get().sun_dir);
         shader->set_mat4("model", glm::mat4(1.0f));
         cam->apply_vp(shader);
@@ -133,8 +136,8 @@ class Sea{
     Shader *shader;
     float height;
     public:
-    Sea(float height){
-        this->height = height;
+    Sea(){
+        this->height = WorldState::Get().world_height * WorldState::Get().sea_level;
         vao = new VAO();
         vao->bind();
         auto vertices = new Buffer(new float[12] {

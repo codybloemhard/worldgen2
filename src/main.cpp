@@ -34,14 +34,16 @@ int main(){
 }
 
 void init(){
+    WorldState::Get().sun_dir = glm::normalize(glm::vec3(0.5f, -1.0f, 0.5f));
+    WorldState::Get().sea_level = 0.25f;
+    WorldState::Get().world_height = 5.0f;
     terrain = new Terrain();
-    sea = new Sea(terrain->height * 0.2f);
+    sea = new Sea();
     sky = new Sky();
     cam = new FpsCamera();
     cam->move_sens = 20.0f;
     cam->fov = 45.0f;
     cam->far = 5000.0f;
-    WorldState::Get().sun_dir = glm::normalize(glm::vec3(0.5f, -1.0f, 0.5f));
     
     glGenFramebuffers(1, &fbo);
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);

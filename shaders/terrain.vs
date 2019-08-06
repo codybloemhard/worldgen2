@@ -6,6 +6,7 @@ uniform mat4 view;
 uniform mat4 proj;
 uniform float height;
 uniform vec3 light_dir;
+uniform float sea_level;
 
 out VertexAttrib{
     vec3 vcol;
@@ -34,9 +35,9 @@ void main(){
     float b = 0.09f;
     float cband = 0, totalband = 0;
     vec3 col = vec3(0);
-    cband = band(h, 0, 0.25, b); totalband += cband;
+    cband = band(h, 0, sea_level, b); totalband += cband;
     col += cband * sand;
-    cband = band(h, 0.25, 0.6, b); totalband += cband;
+    cband = band(h, sea_level, 0.6, b); totalband += cband;
     col += cband * mixlayer(nor, plain, grass, 0.6, 0.4);
     cband = band(h, 0.6, 0.8, b); totalband += cband;
     col += cband * plain;
