@@ -20,27 +20,24 @@ class WorldState{
     float sea_level;
     float world_height;
 };
-class Terrain{
+class TerrainPatch{
     private:
     VAO *vao;
     Shader *shader, *depshader;
+    float offx, offy;
     public:
-    uint size = 1024;
-    float scale = 0.001f;
-    Terrain(){
+    uint size = 256;
+    TerrainPatch(float scale, float offx, float offy){
+        this->offx = offx;
+        this->offy = offy;
         uint vert_len = (size+1)*(size+1);
         auto vertices = new Buffer(new float[vert_len * 3], vert_len * 3);
         for(int i = 0; i < vert_len; i++){
             uint x = (i % (size+1));
             uint y = (i / (size+1));
             vertices->data[i * 3 + 0] = x;
-            float h = Mathh::noise(x * scale, y * scale);
-            h = h*h*h;
-            h += Mathh::noise(x * scale * 4, y * scale * 4) * 0.3f;
-            h += Mathh::noise(x * scale * 16, y * scale * 16) * 0.05f;
-            h += Mathh::noise(x * scale * 64, y * scale * 64) * 0.005f;
-            h += Mathh::noise(x * scale * 256, y * scale * 256) * 0.005f;
-            vertices->data[i * 3 + 1] = h * WorldState::Get().world_height / 1.36f;
+            float h = Mathh::terrain_noise(x + offx, y + offy, scale);
+            vertices->data[i * 3 + 1] = h * WorldState::Get().world_height;
             vertices->data[i * 3 + 2] = y;
         }
         uint indi_len = size * size * 6;
@@ -109,7 +106,7 @@ class Terrain{
         shader = new Shader("shaders/terrain.vs", "shaders/terrain.fs", "shaders/terrain.gs");
         depshader = new Shader("shaders/dep.vs", "shaders/dep.fs", nullptr);
     }
-    ~Terrain(){
+    ~TerrainPatch(){
         delete vao;
         delete shader;
         delete depshader;
@@ -119,7 +116,7 @@ class Terrain{
         shader->set_float("height", WorldState::Get().world_height);
         shader->set_float("sea_level", WorldState::Get().sea_level);
         shader->set_float3("light_dir", WorldState::Get().sun_dir);
-        shader->set_mat4("model", glm::mat4(1.0f));
+        shader->set_float4("model", glm::vec4(offx, offy, 0, 0));
         cam->apply_vp(shader);
         vao->bind();
         glDrawElements(GL_TRIANGLES, size*size*6, GL_UNSIGNED_INT, 0);
@@ -127,10 +124,29 @@ class Terrain{
     void dep_draw(FpsCamera *cam){
         depshader->use();
         depshader->set_float3("campos", cam->campos);
-        depshader->set_mat4("model", glm::mat4(1.0f));
+        shader->set_float4("model", glm::vec4(offx, offy, 0, 0));
         cam->apply_vp(depshader);
         vao->bind();
         glDrawElements(GL_TRIANGLES, size*size*6, GL_UNSIGNED_INT, 0);
+    }
+};
+class Terrain{
+    private:
+    float scale = 0.001f;
+    TerrainPatch *lv0[2];
+    public:
+    Terrain(){
+        lv0[0] = new TerrainPatch(scale, 0.0f, 0.0f);
+        lv0[1] = new TerrainPatch(scale, 256.0f, 0.0f);
+    }
+    ~Terrain(){}
+    void draw(FpsCamera *cam){
+        for(TerrainPatch* tp : lv0)
+            tp->draw(cam);
+    }
+    void dep_draw(FpsCamera *cam){
+        for(TerrainPatch* tp : lv0)
+            tp->dep_draw(cam);
     }
 };
 class Sea{

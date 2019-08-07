@@ -12,8 +12,8 @@ void update(float);
 void render(), init(), exit();
 void input(GLFWwindow*, float, float, float);
 
-//uint ww = 1600, wh = 900;
-uint ww = 2560, wh = 1440;
+uint ww = 1600, wh = 900;
+//uint ww = 2560, wh = 1440;
 
 Terrain *terrain;
 Sea *sea;
@@ -36,7 +36,7 @@ int main(){
 void init(){
     WorldState::Get().sun_dir = glm::normalize(glm::vec3(0.5f, -1.0f, 0.5f));
     WorldState::Get().sea_level = 0.25f;
-    WorldState::Get().world_height = 200.0f;
+    WorldState::Get().world_height = 100.0f;
     terrain = new Terrain();
     sea = new Sea();
     sky = new Sky();

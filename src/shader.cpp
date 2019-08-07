@@ -87,6 +87,11 @@ void Shader::set_float4(const char *name, const float &x, const float &y, const 
     glUniform4f(ul, x, y, z, w);
 }
 
+void Shader::set_float4(const char *name, const glm::vec4 &vec){
+    auto ul = uniloc(name);
+    glUniform4f(ul, vec.x, vec.y, vec.z, vec.w);
+}
+
 void Shader::set_int(const char *name, const int &x){
     auto ul = uniloc(name);
     glUniform1i(ul, x);
