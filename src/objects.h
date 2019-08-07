@@ -133,11 +133,10 @@ class TerrainPatch{
 class Terrain{
     private:
     float scale = 0.001f;
-    TerrainPatch *lv0[2];
+    TerrainPatch *lv0[9];
     public:
     Terrain(){
-        lv0[0] = new TerrainPatch(scale, 0.0f, 0.0f);
-        lv0[1] = new TerrainPatch(scale, 256.0f, 0.0f);
+        fill_inner(lv0, 256);
     }
     ~Terrain(){}
     void draw(FpsCamera *cam){
@@ -147,6 +146,13 @@ class Terrain{
     void dep_draw(FpsCamera *cam){
         for(TerrainPatch* tp : lv0)
             tp->dep_draw(cam);
+    }
+    private:
+    void fill_inner(TerrainPatch *patches[9], float size){
+        for(int x = 0; x < 3; x++)
+            for(int y = 0; y < 3; y++){
+                patches[y*3 + x] = new TerrainPatch(scale, x * size, y * size);
+        }
     }
 };
 class Sea{
