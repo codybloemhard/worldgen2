@@ -1,3 +1,9 @@
+#ifndef mathh_h
+#define mathh_h
+#include "../deps/glm/glm.hpp"
+#include "../deps/glm/gtc/matrix_transform.hpp"
+#include "../deps/glm/gtc/type_ptr.hpp"
+
 class Mathh{
     public:
     //noise functions mapped to be between 0 and 1
@@ -18,4 +24,9 @@ class Mathh{
         h += Mathh::noise(x * scale * 256, y * scale * 256) * 0.005f;
         return h / 1.36f;
     }
+    static void scale_xz(glm::vec3 &vec, float scale){
+        vec.x *= scale;
+        vec.z *= scale;
+    }
 };
+#endif

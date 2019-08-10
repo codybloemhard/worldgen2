@@ -26,7 +26,7 @@ vec3 mixlayer(vec3 nor, vec3 botl, vec3 topl, float maxtop, float softness){
 void main(){
     vec4 p = vec4(vp, 1.0);
     p.x *= model.z;
-    p.z *= model.w;
+    p.z *= model.z;
     p.x += model.x;
     p.z += model.y;
     gl_Position = proj * view * p;

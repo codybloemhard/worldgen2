@@ -25,14 +25,13 @@ class TerrainPatch{
     private:
     VAO *vao;
     Shader *shader, *depshader;
-    float offx, offy, sizex, sizey;
+    float offx, offy, size;
     public:
     uint vsize;//TODO: need public?
-    TerrainPatch(float scale, float offx, float offy, float sizex, float sizey, uint vsize){
+    TerrainPatch(float scale, float offx, float offy, float size, uint vsize){
         this->offx = offx;
         this->offy = offy;
-        this->sizex = sizex;
-        this->sizey = sizey;
+        this->size = size;
         this->vsize = vsize;
         uint vert_len = (vsize+1)*(vsize+1);
         auto vertices = new Buffer(new float[vert_len * 3], vert_len * 3);
@@ -40,7 +39,7 @@ class TerrainPatch{
             uint x = (i % (vsize+1));
             uint y = (i / (vsize+1));
             vertices->data[i * 3 + 0] = x;
-            float h = Mathh::terrain_noise(x*sizex + offx, y*sizey + offy, scale);
+            float h = Mathh::terrain_noise(x*size + offx, y*size + offy, scale);
             vertices->data[i * 3 + 1] = h * WorldState::Get().world_height;
             vertices->data[i * 3 + 2] = y;
         }
@@ -69,6 +68,8 @@ class TerrainPatch{
             auto p1 = from_arr(vertices->data, r1 * 3);
             auto p2 = from_arr(vertices->data, r2 * 3);
             auto p3 = from_arr(vertices->data, r3 * 3);
+            Mathh::scale_xz(p0, size);Mathh::scale_xz(p1, size);
+            Mathh::scale_xz(p2, size);Mathh::scale_xz(p3, size);
             auto pn = glm::normalize(glm::cross(p1-p0,p2-p0));
             auto qn = glm::normalize(glm::cross(p2-p0,p3-p0));
             count[r0] += 2;
@@ -120,7 +121,7 @@ class TerrainPatch{
         shader->set_float("height", WorldState::Get().world_height);
         shader->set_float("sea_level", WorldState::Get().sea_level);
         shader->set_float3("light_dir", WorldState::Get().sun_dir);
-        shader->set_float4("model", glm::vec4(offx, offy, sizex, sizey));
+        shader->set_float4("model", glm::vec4(offx, offy, size, 0.0f));
         cam->apply_vp(shader);
         vao->bind();
         glDrawElements(GL_TRIANGLES, vsize*vsize*6, GL_UNSIGNED_INT, 0);
@@ -141,7 +142,7 @@ class Terrain{
     std::vector<std::vector<TerrainPatch*>> patches;
     public:
     Terrain(){
-        float psize = 32;
+        float psize = 32.0f;
         bool pring = false;
         for(uint lv : levels){
             std::vector<TerrainPatch*> ring;
@@ -174,7 +175,7 @@ class Terrain{
                 if(donutpatch && x == 1 && y == 1)
                     patches[y*3 + x] = nullptr;    
                 else
-                    patches[y*3 + x] = new TerrainPatch(scale, ((float)x-1.5f) * size, ((float)y-1.5f) * size, relsize, relsize, vsize);
+                    patches[y*3 + x] = new TerrainPatch(scale, ((float)x-1.5f) * size, ((float)y-1.5f) * size, relsize, vsize);
         }
     }
 };
