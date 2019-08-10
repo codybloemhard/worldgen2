@@ -35,7 +35,7 @@ int main(){
 
 void init(){
     WorldState::Get().sun_dir = glm::normalize(glm::vec3(0.5f, -1.0f, 0.5f));
-    WorldState::Get().sea_level = 0.25f;
+    WorldState::Get().sea_level = 0.0025f;
     WorldState::Get().world_height = 100.0f;
     terrain = new Terrain();
     sea = new Sea();
@@ -47,7 +47,7 @@ void init(){
     
     glGenFramebuffers(1, &fbo);
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-
+    
     glDeleteTextures(1, &tex);
     glGenTextures(1, &tex);
     glBindTexture(GL_TEXTURE_2D, tex);
@@ -56,7 +56,7 @@ void init(){
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex, 0);
     glBindTexture(GL_TEXTURE, 0);
-
+    
     unsigned int rbo;
     glGenRenderbuffers(1, &rbo);
     glBindRenderbuffer(GL_RENDERBUFFER, rbo);

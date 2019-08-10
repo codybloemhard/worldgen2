@@ -24,43 +24,46 @@ class TerrainPatch{
     private:
     VAO *vao;
     Shader *shader, *depshader;
-    float offx, offy;
+    float offx, offy, sizex, sizey;
     public:
-    uint size = 256;
-    TerrainPatch(float scale, float offx, float offy){
+    uint vsize;//TODO: need public?
+    TerrainPatch(float scale, float offx, float offy, float sizex, float sizey, uint vsize){
         this->offx = offx;
         this->offy = offy;
-        uint vert_len = (size+1)*(size+1);
+        this->sizex = sizex;
+        this->sizey = sizey;
+        this->vsize = vsize;
+        uint vert_len = (vsize+1)*(vsize+1);
         auto vertices = new Buffer(new float[vert_len * 3], vert_len * 3);
         for(int i = 0; i < vert_len; i++){
-            uint x = (i % (size+1));
-            uint y = (i / (size+1));
+            uint x = (i % (vsize+1));
+            uint y = (i / (vsize+1));
             vertices->data[i * 3 + 0] = x;
-            float h = Mathh::terrain_noise(x + offx, y + offy, scale);
+            float h = Mathh::terrain_noise(x*sizex + offx, y*sizey + offy, scale);
             vertices->data[i * 3 + 1] = h * WorldState::Get().world_height;
             vertices->data[i * 3 + 2] = y;
         }
-        uint indi_len = size * size * 6;
+        uint indi_len = vsize * vsize * 6;
         auto indices = new Buffer(new uint[indi_len], indi_len);
         int i = 0;
-        for(uint x = 0; x < size; x++)for(uint y = 0; y < size; y++){
-            indices->data[i + 0] = (x + 0) + (y + 0) * (size + 1);
-            indices->data[i + 1] = (x + 1) + (y + 0) * (size + 1);
-            indices->data[i + 2] = (x + 1) + (y + 1) * (size + 1);
-            indices->data[i + 3] = (x + 0) + (y + 0) * (size + 1);
-            indices->data[i + 4] = (x + 1) + (y + 1) * (size + 1);
-            indices->data[i + 5] = (x + 0) + (y + 1) * (size + 1);
+        for(uint x = 0; x < vsize; x++)for(uint y = 0; y < vsize; y++){
+            indices->data[i + 0] = (x + 0) + (y + 0) * (vsize + 1);
+            indices->data[i + 1] = (x + 1) + (y + 0) * (vsize + 1);
+            indices->data[i + 2] = (x + 1) + (y + 1) * (vsize + 1);
+            indices->data[i + 3] = (x + 0) + (y + 0) * (vsize + 1);
+            indices->data[i + 4] = (x + 1) + (y + 1) * (vsize + 1);
+            indices->data[i + 5] = (x + 0) + (y + 1) * (vsize + 1);
             i += 6;
         }
         uint norm_len = vert_len;
         auto normals = new Buffer(new float[norm_len * 3], norm_len * 3);
         auto count = new uint[norm_len];
         auto norms = new glm::vec3[norm_len];
-        for(uint x = 0; x < size; x++)for(uint y = 0; y < size; y++){
-            auto r0 = (x + 0) + (y + 0) * (size + 1);
-            auto r1 = (x + 1) + (y + 0) * (size + 1);
-            auto r2 = (x + 1) + (y + 1) * (size + 1);
-            auto r3 = (x + 0) + (y + 1) * (size + 1);
+        for(uint x = 0; x < vsize; x++)for(uint y = 0; y < vsize; y++){
+            auto r0 = (x + 0) + (y + 0) * (vsize + 1);
+            auto r1 = (x + 1) + (y + 0) * (vsize + 1);
+            auto r2 = (x + 1) + (y + 1) * (vsize + 1);
+            auto r3 = (x + 0) + (y + 1) * (vsize + 1);
             auto p0 = from_arr(vertices->data, r0 * 3);
             auto p1 = from_arr(vertices->data, r1 * 3);
             auto p2 = from_arr(vertices->data, r2 * 3);
@@ -116,10 +119,10 @@ class TerrainPatch{
         shader->set_float("height", WorldState::Get().world_height);
         shader->set_float("sea_level", WorldState::Get().sea_level);
         shader->set_float3("light_dir", WorldState::Get().sun_dir);
-        shader->set_float4("model", glm::vec4(offx, offy, 0, 0));
+        shader->set_float4("model", glm::vec4(offx, offy, sizex, sizey));
         cam->apply_vp(shader);
         vao->bind();
-        glDrawElements(GL_TRIANGLES, size*size*6, GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, vsize*vsize*6, GL_UNSIGNED_INT, 0);
     }
     void dep_draw(FpsCamera *cam){
         depshader->use();
@@ -127,31 +130,56 @@ class TerrainPatch{
         shader->set_float4("model", glm::vec4(offx, offy, 0, 0));
         cam->apply_vp(depshader);
         vao->bind();
-        glDrawElements(GL_TRIANGLES, size*size*6, GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, vsize*vsize*6, GL_UNSIGNED_INT, 0);
     }
 };
 class Terrain{
     private:
     float scale = 0.001f;
-    TerrainPatch *lv0[9];
+    TerrainPatch *lv0[9], *lv1[9], *lv2[9];
     public:
     Terrain(){
-        fill_inner(lv0, 256);
+        fill_inner(lv0, 32, 32);
+        fill_loop(lv1, 32*3, 32);
+        fill_loop(lv2, 32*3*3, 32);
     }
     ~Terrain(){}
     void draw(FpsCamera *cam){
         for(TerrainPatch* tp : lv0)
             tp->draw(cam);
+        for(TerrainPatch* tp : lv1)
+            if(tp != nullptr)
+                tp->draw(cam);
+        for(TerrainPatch* tp : lv2)
+            if(tp != nullptr)
+                tp->draw(cam);
     }
     void dep_draw(FpsCamera *cam){
         for(TerrainPatch* tp : lv0)
             tp->dep_draw(cam);
+        for(TerrainPatch* tp : lv1)
+            if(tp != nullptr)
+                tp->draw(cam);
+        for(TerrainPatch* tp : lv2)
+            if(tp != nullptr)
+                tp->draw(cam);
     }
     private:
-    void fill_inner(TerrainPatch *patches[9], float size){
+    void fill_inner(TerrainPatch *patches[9], float size, uint vsize){
+        float relsize = size/(float)vsize;
         for(int x = 0; x < 3; x++)
             for(int y = 0; y < 3; y++){
-                patches[y*3 + x] = new TerrainPatch(scale, x * size, y * size);
+                patches[y*3 + x] = new TerrainPatch(scale, ((float)x-1.5f) * size, ((float)y-1.5f) * size, relsize, relsize, vsize);
+        }
+    }
+    void fill_loop(TerrainPatch *patches[9], float size, uint vsize){
+        float relsize = size/(float)vsize;
+        for(int x = 0; x < 3; x++)
+            for(int y = 0; y < 3; y++){
+                if(x == 1 && y == 1)
+                    patches[y*3 + x] = nullptr;
+                else
+                    patches[y*3 + x] = new TerrainPatch(scale, ((float)x-1.5f) * size, ((float)y-1.5f) * size, relsize, relsize, vsize);
         }
     }
 };
