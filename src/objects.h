@@ -4,6 +4,7 @@
 #include "glstuff.h"
 #include "fps_camera.h"
 #include "mathh.h"
+#include <vector>
 
 class WorldState{
     private:
@@ -136,48 +137,42 @@ class TerrainPatch{
 class Terrain{
     private:
     float scale = 0.001f;
-    TerrainPatch *lv0[9], *lv1[9], *lv2[9];
+    std::vector<uint> levels { 32, 32, 32, 32, 32, 32, 32, 32, 16 };
+    std::vector<std::vector<TerrainPatch*>> patches;
     public:
     Terrain(){
-        fill_inner(lv0, 32, 32);
-        fill_loop(lv1, 32*3, 32);
-        fill_loop(lv2, 32*3*3, 32);
+        float psize = 32;
+        bool pring = false;
+        for(uint lv : levels){
+            std::vector<TerrainPatch*> ring;
+            for(int i = 0; i < 9; i++)
+                ring.push_back(nullptr);
+            place_patches(ring, psize, 32, pring);
+            patches.push_back(ring);
+            pring = true;
+            psize *= 3;
+        }
     }
     ~Terrain(){}
     void draw(FpsCamera *cam){
-        for(TerrainPatch* tp : lv0)
-            tp->draw(cam);
-        for(TerrainPatch* tp : lv1)
-            if(tp != nullptr)
-                tp->draw(cam);
-        for(TerrainPatch* tp : lv2)
-            if(tp != nullptr)
-                tp->draw(cam);
+        for(auto ring : patches)
+            for(auto patch : ring)
+                if(patch != nullptr)
+                    patch->draw(cam);
     }
     void dep_draw(FpsCamera *cam){
-        for(TerrainPatch* tp : lv0)
-            tp->dep_draw(cam);
-        for(TerrainPatch* tp : lv1)
-            if(tp != nullptr)
-                tp->draw(cam);
-        for(TerrainPatch* tp : lv2)
-            if(tp != nullptr)
-                tp->draw(cam);
+        for(auto ring : patches)
+            for(auto patch : ring)
+                if(patch != nullptr)
+                    patch->dep_draw(cam);
     }
     private:
-    void fill_inner(TerrainPatch *patches[9], float size, uint vsize){
+    void place_patches(std::vector<TerrainPatch*> &patches, float size, uint vsize, bool donutpatch){
         float relsize = size/(float)vsize;
         for(int x = 0; x < 3; x++)
             for(int y = 0; y < 3; y++){
-                patches[y*3 + x] = new TerrainPatch(scale, ((float)x-1.5f) * size, ((float)y-1.5f) * size, relsize, relsize, vsize);
-        }
-    }
-    void fill_loop(TerrainPatch *patches[9], float size, uint vsize){
-        float relsize = size/(float)vsize;
-        for(int x = 0; x < 3; x++)
-            for(int y = 0; y < 3; y++){
-                if(x == 1 && y == 1)
-                    patches[y*3 + x] = nullptr;
+                if(donutpatch && x == 1 && y == 1)
+                    patches[y*3 + x] = nullptr;    
                 else
                     patches[y*3 + x] = new TerrainPatch(scale, ((float)x-1.5f) * size, ((float)y-1.5f) * size, relsize, relsize, vsize);
         }

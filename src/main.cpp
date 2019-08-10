@@ -41,9 +41,9 @@ void init(){
     sea = new Sea();
     sky = new Sky();
     cam = new FpsCamera();
-    cam->move_sens = 200.0f;
+    cam->move_sens = 2000.0f;
     cam->fov = 45.0f;
-    cam->far = 5000.0f;
+    cam->far = 1000000.0f;
     
     glGenFramebuffers(1, &fbo);
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
@@ -56,7 +56,7 @@ void init(){
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex, 0);
     glBindTexture(GL_TEXTURE, 0);
-    
+
     unsigned int rbo;
     glGenRenderbuffers(1, &rbo);
     glBindRenderbuffer(GL_RENDERBUFFER, rbo);
