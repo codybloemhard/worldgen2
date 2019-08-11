@@ -137,22 +137,27 @@ class TerrainPatch{
 };
 class Terrain{
     private:
-    float scale = 0.001f;
-    std::vector<uint> levels { 32, 32, 32, 32, 32, 32, 32, 32, 16 };
+    uint vmulti = 16;
+    float scale = 0.0001f;
+    std::vector<uint> levels { 2, 2, 2, 2, 2, 2, 2, 2, 1 };
     std::vector<std::vector<TerrainPatch*>> patches;
     public:
     Terrain(){
-        float psize = 32.0f;
+        uint vertices = 0;
+        float psize = 64.0f;
         bool pring = false;
         for(uint lv : levels){
             std::vector<TerrainPatch*> ring;
             for(int i = 0; i < 9; i++)
                 ring.push_back(nullptr);
-            place_patches(ring, psize, 32, pring);
+            uint vsize = lv*vmulti;
+            vertices += vsize * vsize;
+            place_patches(ring, psize, vsize, pring);
             patches.push_back(ring);
             pring = true;
             psize *= 3;
         }
+        printf("Terrain: %zu vertices.\n", vertices);
     }
     ~Terrain(){}
     void draw(FpsCamera *cam){
