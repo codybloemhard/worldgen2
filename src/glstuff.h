@@ -48,6 +48,9 @@ class GBO{
     void upload(GLenum use){
         glBufferData(target, data->size(), data->data, use);
     }
+    void reupload(){
+        glBufferSubData(target, 0, data->size(), data->data);
+    }
     GLuint handle(){
         return gbo;
     }

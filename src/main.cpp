@@ -95,7 +95,7 @@ void render(){
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     sea->draw(cam, tex, ww, wh, gametime);
     sky->draw(cam);
-    font->print("");
+    font->print("Henlo Frens!");
     glBindVertexArray(0);
 }
 
