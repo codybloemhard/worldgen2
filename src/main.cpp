@@ -7,6 +7,7 @@
 #include "window.h"
 #include "fps_camera.h"
 #include "objects.h"
+#include "font.h"
 
 void update(float);
 void render(), init(), exit();
@@ -19,6 +20,7 @@ Terrain *terrain;
 Sea *sea;
 Sky *sky;
 FpsCamera *cam;
+Font* font;
 
 GLuint fbo, tex;
 float gametime = 0.0f;
@@ -37,6 +39,7 @@ void init(){
     WorldState::Get().sun_dir = glm::normalize(glm::vec3(0.5f, -1.0f, 0.5f));
     WorldState::Get().sea_level = 0.25f;
     WorldState::Get().world_height = 3000.0f;
+    font = new Font();
     terrain = new Terrain();
     sea = new Sea();
     sky = new Sky();
@@ -92,6 +95,7 @@ void render(){
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     sea->draw(cam, tex, ww, wh, gametime);
     sky->draw(cam);
+    font->print("");
     glBindVertexArray(0);
 }
 
