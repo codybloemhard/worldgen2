@@ -8,6 +8,8 @@
 #include "fps_camera.h"
 #include "objects.h"
 #include "font.h"
+#include "worldstate.h"
+#include "mathh.h"
 
 void update(float);
 void render(), init(), exit();
@@ -23,12 +25,16 @@ FpsCamera *cam;
 Font* font;
 
 GLuint fbo, tex;
-bool show_debug = true;
 float gametime = 0.0f;
+
+bool show_debug = true;
 float font_size = 0.02f;
 glm::vec3 last_pos = glm::vec3(0);
 float total_dist_r3 = 0;
 float total_dist_xz = 0;
+
+uint mode = 1;
+bool m_down = false;
 
 int main(){
     printf("Henlo Frens!\n");
@@ -44,12 +50,14 @@ void init(){
     WorldState::Get().sun_dir = glm::normalize(glm::vec3(0.5f, -1.0f, 0.5f));
     WorldState::Get().sea_level = 0.25f;
     WorldState::Get().world_height = 3000.0f;
+    WorldState::Get().world_scale = 0.0001f;
+    WorldState::Get().walk_speed = 5.0f;
+    WorldState::Get().fly_speed = 2000.0f;
     font = new Font("assets/codyfont.png", 12, 8, 16.0f/9.0f);
     terrain = new Terrain();
     sea = new Sea();
     sky = new Sky();
     cam = new FpsCamera();
-    cam->move_sens = 2000.0f;
     cam->fov = 45.0f;
     cam->far = 1000000.0f;
     
@@ -82,6 +90,15 @@ void update(float elaps){
     total_dist_r3 += glm::distance(last_pos, cam->campos);
     total_dist_xz += glm::distance(glm::vec3(last_pos.x,cam->campos.y,last_pos.z), cam->campos);
     last_pos = cam->campos;
+    if(mode == 0){//fly mode
+        cam->move_sens = WorldState::Get().fly_speed;
+        cam->vert_sens = WorldState::Get().fly_speed;
+    }else if(mode == 1){//walk mode
+        cam->move_sens = WorldState::Get().walk_speed;
+        cam->vert_sens = 0.0f;
+        float h = Mathh::terrain_noise(cam->campos.x, cam->campos.z);
+        cam->campos.y = h + 2.0f;
+    }
 }
 
 void render(){
@@ -117,6 +134,14 @@ void render(){
 
 void input(GLFWwindow *window, float elaps, float xpos, float ypos)
 {
+    bool m_down_prev = m_down;
+    if(glfwGetKey(window, GLFW_KEY_M) == GLFW_PRESS)
+        m_down = true;
+    else m_down = false;
+    if(m_down_prev != m_down && m_down){
+        mode = (mode + 1) % 2;
+        printf("*");
+    }
     cam->input(window, elaps, xpos, ypos);
 }
 

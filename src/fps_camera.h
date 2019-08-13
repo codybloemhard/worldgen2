@@ -12,7 +12,7 @@ class FpsCamera{
     FpsCamera();
     void input(GLFWwindow*, float, float, float);
     void apply_vp(Shader*,bool usepos = true);
-    float move_sens = 1.0f, mouse_sens = 0.1f,
+    float move_sens = 1.0f, vert_sens = 1.0f, mouse_sens = 0.1f,
         fov = 90.0f, aspect = 16.0f/9.0f,
         near = 0.1f, far = 1000.0f;
     glm::vec3 campos = glm::vec3(0.0f, 0.0f, 0.0f);

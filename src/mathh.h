@@ -3,6 +3,7 @@
 #include "../deps/glm/glm.hpp"
 #include "../deps/glm/gtc/matrix_transform.hpp"
 #include "../deps/glm/gtc/type_ptr.hpp"
+#include "worldstate.h"
 
 class Mathh{
     public:
@@ -15,14 +16,16 @@ class Mathh{
         float h = SimplexNoise::noise(x, y, z);
         return h*0.5f+0.5f;
     }
-    static float terrain_noise(float x, float y, float scale){
+    static float terrain_noise(float x, float y){
+        float scale = WorldState::Get().world_scale;
         float h = Mathh::noise(x * scale, y * scale);
         h = h*h*h;
+
         h += Mathh::noise(x * scale * 4, y * scale * 4) * 0.3f;
         h += Mathh::noise(x * scale * 16, y * scale * 16) * 0.05f;
         h += Mathh::noise(x * scale * 64, y * scale * 64) * 0.005f;
         h += Mathh::noise(x * scale * 256, y * scale * 256) * 0.005f;
-        return h / 1.36f;
+        return h / 1.36f * WorldState::Get().world_height;
     }
     static void scale_xz(glm::vec3 &vec, float scale){
         vec.x *= scale;

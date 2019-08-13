@@ -6,21 +6,6 @@
 #include "mathh.h"
 #include <vector>
 
-class WorldState{
-    private:
-    WorldState(){}
-    public:
-    static WorldState& Get(){
-        static WorldState inst;
-        return inst;
-    }
-    WorldState(WorldState const&) = delete;
-    void operator=(WorldState const&) = delete;
-    //all variables
-    glm::vec3 sun_dir;
-    float sea_level;
-    float world_height;
-};
 class TerrainPatch{
     private:
     VAO *vao;
@@ -28,7 +13,7 @@ class TerrainPatch{
     float offx, offy, size;
     public:
     uint vsize;//TODO: need public?
-    TerrainPatch(float scale, float offx, float offy, float size, uint vsize){
+    TerrainPatch(float offx, float offy, float size, uint vsize){
         this->offx = offx;
         this->offy = offy;
         this->size = size;
@@ -39,8 +24,8 @@ class TerrainPatch{
             uint x = (i % (vsize+1));
             uint y = (i / (vsize+1));
             vertices->data[i * 3 + 0] = x;
-            float h = Mathh::terrain_noise(x*size + offx, y*size + offy, scale);
-            vertices->data[i * 3 + 1] = h * WorldState::Get().world_height;
+            float h = Mathh::terrain_noise(x*size + offx, y*size + offy);
+            vertices->data[i * 3 + 1] = h;
             vertices->data[i * 3 + 2] = y;
         }
         uint indi_len = vsize * vsize * 6;
@@ -138,7 +123,6 @@ class TerrainPatch{
 class Terrain{
     private:
     uint vmulti = 16;
-    float scale = 0.0001f;
     std::vector<uint> levels { 2, 2, 2, 2, 2, 2, 2, 2, 1 };
     std::vector<std::vector<TerrainPatch*>> patches;
     public:
@@ -180,7 +164,7 @@ class Terrain{
                 if(donutpatch && x == 1 && y == 1)
                     patches[y*3 + x] = nullptr;    
                 else
-                    patches[y*3 + x] = new TerrainPatch(scale, ((float)x-1.5f) * size, ((float)y-1.5f) * size, relsize, vsize);
+                    patches[y*3 + x] = new TerrainPatch(((float)x-1.5f) * size, ((float)y-1.5f) * size, relsize, vsize);
         }
     }
 };

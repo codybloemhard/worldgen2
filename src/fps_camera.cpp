@@ -19,9 +19,9 @@ void FpsCamera::input(GLFWwindow *window, float elaps, float xpos, float ypos){
     if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         campos += xzri * elaps * move_sens;
     if(glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
-        campos += up * elaps * move_sens;
+        campos += up * elaps * vert_sens;
     if(glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
-        campos -= up * elaps * move_sens;
+        campos -= up * elaps * vert_sens;
     if(firstmouse){
         lastx = xpos;
         lasty = ypos;
