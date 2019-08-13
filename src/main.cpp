@@ -23,7 +23,12 @@ FpsCamera *cam;
 Font* font;
 
 GLuint fbo, tex;
+bool show_debug = true;
 float gametime = 0.0f;
+float font_size = 0.02f;
+glm::vec3 last_pos = glm::vec3(0);
+float total_dist_r3 = 0;
+float total_dist_xz = 0;
 
 int main(){
     printf("Henlo Frens!\n");
@@ -44,7 +49,7 @@ void init(){
     sea = new Sea();
     sky = new Sky();
     cam = new FpsCamera();
-    cam->move_sens = 500.0f;
+    cam->move_sens = 2000.0f;
     cam->fov = 45.0f;
     cam->far = 1000000.0f;
     
@@ -74,6 +79,9 @@ void init(){
 
 void update(float elaps){
     gametime += elaps;
+    total_dist_r3 += glm::distance(last_pos, cam->campos);
+    total_dist_xz += glm::distance(glm::vec3(last_pos.x,cam->campos.y,last_pos.z), cam->campos);
+    last_pos = cam->campos;
 }
 
 void render(){
@@ -95,9 +103,12 @@ void render(){
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     sea->draw(cam, tex, ww, wh, gametime);
     sky->draw(cam);
-    font->print_grid("Henlo Frens!", 0.03f, glm::vec3(0.2f), 0, 0);
-    font->print_grid("Henlo Frens again!", 0.03f, glm::vec3(0.2f), 0, 1);
-    font->print_grid("2 sentences on the same line!", 0.03f, glm::vec3(0.2f), 13, 0);
+    if(show_debug){
+        font->print_grid(std::string("R3-DIST-ORI: "), (uint)glm::distance(glm::vec3(0.0f), cam->campos), font_size, glm::vec3(0.2f), 0, 0);
+        font->print_grid(std::string("R3-DIST-TOT: "), (uint)total_dist_r3, font_size, glm::vec3(0.2f), 0, 1);
+        font->print_grid(std::string("XZ-DIST-ORI: "), (uint)glm::distance(glm::vec3(0,cam->campos.y,0), cam->campos), font_size, glm::vec3(0.2f), 0, 2);
+        font->print_grid(std::string("XZ-DIST-TOT: "), (uint)total_dist_xz, font_size, glm::vec3(0.2f), 0, 3);
+    }
     glBindVertexArray(0);
 }
 
