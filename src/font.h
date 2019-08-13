@@ -103,17 +103,19 @@ class Font{
         delete ebo;
     }
     template <typename T>
-    void print_grid(const std::string msg, T val, float letter_width, const glm::vec3 color, uint gx, uint gy){
+    //grid prints return grid x pos after the last char
+    uint print_grid(const std::string msg, T val, float letter_width, const glm::vec3 color, uint gx, uint gy){
         print_grid(msg, letter_width, color, gx, gy);
-        print_grid(std::to_string(val), letter_width, color, gx + msg.length(), gy);
+        return print_grid(std::to_string(val), letter_width, color, gx + msg.length(), gy);
     }
-    void print_grid(const std::string msg0, const std::string msg1, float letter_width, const glm::vec3 color, uint gx, uint gy){
+    uint print_grid(const std::string msg0, const std::string msg1, float letter_width, const glm::vec3 color, uint gx, uint gy){
         print_grid(msg0, letter_width, color, gx, gy);
-        print_grid(msg1, letter_width, color, gx + msg0.length(), gy);
+        return print_grid(msg1, letter_width, color, gx + msg0.length(), gy);
     }
-    void print_grid(const std::string msg, float letter_width, const glm::vec3 color, uint gx, uint gy){
+    uint print_grid(const std::string msg, float letter_width, const glm::vec3 color, uint gx, uint gy){
         float letter_height = letter_width * ((float)framesx/(float)framesy) * aspect_ratio;
         print(msg.c_str(), letter_width, color, glm::vec2(-1.0f + letter_width*gx, +1.0f - letter_height*(gy+1)));
+        return msg.length() + gx;
     }
     void print(const char *msg, float letter_width, const glm::vec3 color, const glm::vec2 pos){
         float xstep = 1.0f / (float)framesx;

@@ -104,10 +104,13 @@ void render(){
     sea->draw(cam, tex, ww, wh, gametime);
     sky->draw(cam);
     if(show_debug){
-        font->print_grid(std::string("R3-DIST-ORI: "), (uint)glm::distance(glm::vec3(0.0f), cam->campos), font_size, glm::vec3(0.2f), 0, 0);
-        font->print_grid(std::string("R3-DIST-TOT: "), (uint)total_dist_r3, font_size, glm::vec3(0.2f), 0, 1);
-        font->print_grid(std::string("XZ-DIST-ORI: "), (uint)glm::distance(glm::vec3(0,cam->campos.y,0), cam->campos), font_size, glm::vec3(0.2f), 0, 2);
-        font->print_grid(std::string("XZ-DIST-TOT: "), (uint)total_dist_xz, font_size, glm::vec3(0.2f), 0, 3);
+        uint end = font->print_grid(std::string("X: "), (int)cam->campos.x, font_size, glm::vec3(0.2f), 0, 0);
+        end = font->print_grid(std::string("Y: "), (int)cam->campos.y, font_size, glm::vec3(0.2f), end + 1, 0);
+        end = font->print_grid(std::string("Z: "), (int)cam->campos.z, font_size, glm::vec3(0.2f), end + 1, 0);
+        font->print_grid(std::string("R3-DIST-ORI: "), (uint)glm::distance(glm::vec3(0.0f), cam->campos), font_size, glm::vec3(0.2f), 0, 1);
+        font->print_grid(std::string("R3-DIST-TOT: "), (uint)total_dist_r3, font_size, glm::vec3(0.2f), 0, 2);
+        font->print_grid(std::string("XZ-DIST-ORI: "), (uint)glm::distance(glm::vec3(0,cam->campos.y,0), cam->campos), font_size, glm::vec3(0.2f), 0, 3);
+        font->print_grid(std::string("XZ-DIST-TOT: "), (uint)total_dist_xz, font_size, glm::vec3(0.2f), 0, 4);
     }
     glBindVertexArray(0);
 }
