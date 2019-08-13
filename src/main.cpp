@@ -39,7 +39,7 @@ void init(){
     WorldState::Get().sun_dir = glm::normalize(glm::vec3(0.5f, -1.0f, 0.5f));
     WorldState::Get().sea_level = 0.25f;
     WorldState::Get().world_height = 3000.0f;
-    font = new Font();
+    font = new Font("assets/codyfont.png", 12, 8, 16.0f/9.0f);
     terrain = new Terrain();
     sea = new Sea();
     sky = new Sky();
@@ -95,7 +95,7 @@ void render(){
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     sea->draw(cam, tex, ww, wh, gametime);
     sky->draw(cam);
-    font->print("Henlo Frens!");
+    font->print("Henlo Frens!", 0.03f, glm::vec3(0.2f), glm::vec2(-1.0f, +1.0f));
     glBindVertexArray(0);
 }
 
