@@ -14,6 +14,7 @@ class Font{
     const uint max_len = 256;
     const uint framesx, framesy;
     float aspect_ratio;
+    uint len_last = 0;
     public:
     Font(const char *file, uint _framesx, uint _framesy, float aspect_ratio)
     : framesx(_framesx), framesy(_framesy){
@@ -109,9 +110,31 @@ class Font{
         float xstep = 1.0f / (float)framesx;
         float ystep = 1.0f / (float)framesy;
         int i = 0;
+        uint new_len_last = 0;
+        bool cleanup = false;
         while(i < max_len){
+            if(cleanup){
+                if(i >= len_last){
+                    len_last = new_len_last;
+                    break;
+                }
+                uvs->data[i*8 + 0] = 0;
+                uvs->data[i*8 + 1] = 0;
+                uvs->data[i*8 + 2] = 0;
+                uvs->data[i*8 + 3] = 0;
+                uvs->data[i*8 + 4] = 0;
+                uvs->data[i*8 + 5] = 0;
+                uvs->data[i*8 + 6] = 0;
+                uvs->data[i*8 + 7] = 0;
+                i++;
+                continue;
+            }
             char chr = msg[i];
-            if(chr == 0) break;
+            if(chr == 0){
+                cleanup = true;
+                new_len_last = i;
+                continue;
+            }
             if(chr < 32 || chr > 127){
                 printf("Font: char nr %d is not in range.\n");
                 chr = 0;

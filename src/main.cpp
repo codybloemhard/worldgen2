@@ -97,7 +97,7 @@ void render(){
     sky->draw(cam);
     font->print_grid("Henlo Frens!", 0.03f, glm::vec3(0.2f), 0, 0);
     font->print_grid("Henlo Frens again!", 0.03f, glm::vec3(0.2f), 0, 1);
-    font->print_grid("2 sentences on the same line!", 0.03f, glm::vec3(0.2f), 12, 0);
+    font->print_grid("2 sentences on the same line!", 0.03f, glm::vec3(0.2f), 13, 0);
     glBindVertexArray(0);
 }
 
