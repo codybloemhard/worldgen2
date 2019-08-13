@@ -95,7 +95,9 @@ void render(){
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     sea->draw(cam, tex, ww, wh, gametime);
     sky->draw(cam);
-    font->print("Henlo Frens!", 0.03f, glm::vec3(0.2f), glm::vec2(-1.0f, +1.0f));
+    font->print_grid("Henlo Frens!", 0.03f, glm::vec3(0.2f), 0, 0);
+    font->print_grid("Henlo Frens again!", 0.03f, glm::vec3(0.2f), 0, 1);
+    font->print_grid("2 sentences on the same line!", 0.03f, glm::vec3(0.2f), 12, 0);
     glBindVertexArray(0);
 }
 

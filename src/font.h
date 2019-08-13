@@ -101,7 +101,11 @@ class Font{
         delete tbo;
         delete ebo;
     }
-    void print(const char* msg, float letter_width, const glm::vec3 color, const glm::vec2 pos){
+    void print_grid(const char *msg, float letter_width, const glm::vec3 color, uint gx, uint gy){
+        float letter_height = letter_width * ((float)framesx/(float)framesy) * aspect_ratio;
+        print(msg, letter_width, color, glm::vec2(-1.0f + letter_width*gx, +1.0f - letter_height*(gy+1)));
+    }
+    void print(const char *msg, float letter_width, const glm::vec3 color, const glm::vec2 pos){
         float xstep = 1.0f / (float)framesx;
         float ystep = 1.0f / (float)framesy;
         int i = 0;
@@ -135,7 +139,7 @@ class Font{
         }
         shader->use();
         float letter_height = letter_width * ((float)framesx/(float)framesy) * aspect_ratio;
-        shader->set_float2("pos", pos.x, pos.y - letter_height);//pos of topleft corner first letter
+        shader->set_float2("pos", pos.x, pos.y);
         shader->set_float2("letter_scale", letter_width, letter_height);
         shader->set_float3("color", color);
         glDisable(GL_DEPTH_TEST);
