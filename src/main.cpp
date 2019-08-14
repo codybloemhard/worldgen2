@@ -33,7 +33,7 @@ glm::vec3 last_pos = glm::vec3(0);
 float total_dist_r3 = 0;
 float total_dist_xz = 0;
 
-uint mode = 1;
+uint mode = 0;
 bool m_down = false;
 
 int main(){
@@ -138,10 +138,8 @@ void input(GLFWwindow *window, float elaps, float xpos, float ypos)
     if(glfwGetKey(window, GLFW_KEY_M) == GLFW_PRESS)
         m_down = true;
     else m_down = false;
-    if(m_down_prev != m_down && m_down){
+    if(m_down_prev != m_down && m_down)
         mode = (mode + 1) % 2;
-        printf("*");
-    }
     cam->input(window, elaps, xpos, ypos);
 }
 

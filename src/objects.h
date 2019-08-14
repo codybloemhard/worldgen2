@@ -20,14 +20,45 @@ class TerrainPatch{
         this->vsize = vsize;
         uint vert_len = (vsize+1)*(vsize+1);
         auto vertices = new Buffer(new float[vert_len * 3], vert_len * 3);
+        //vertices
         for(int i = 0; i < vert_len; i++){
             uint x = (i % (vsize+1));
             uint y = (i / (vsize+1));
             vertices->data[i * 3 + 0] = x;
-            float h = Mathh::terrain_noise(x*size + offx, y*size + offy);
-            vertices->data[i * 3 + 1] = h;
+            vertices->data[i * 3 + 1] = 0;
             vertices->data[i * 3 + 2] = y;
         }
+        //middle kernel
+        for(int i = 0; i < (vsize-1)*(vsize-1); i++){
+            uint x = (i % (vsize-1)) + 1;
+            uint y = (i / (vsize-1)) + 1;
+            uint j = y * (vsize+1) + x;
+            float h = Mathh::terrain_noise(x*size + offx, y*size + offy);
+            vertices->data[j * 3 + 0] = x;
+            vertices->data[j * 3 + 1] = h;
+            vertices->data[j * 3 + 2] = y;
+        }
+        //x rows kernel
+        for(uint y = 0; y < vsize+1; y += vsize){
+            for(uint x = 0; x < vsize+1; x++){
+                uint j = y * (vsize+1) + x;
+                float h = Mathh::terrain_noise(x*size + offx, y*size + offy);
+                vertices->data[j * 3 + 0] = x;
+                vertices->data[j * 3 + 1] = h;
+                vertices->data[j * 3 + 2] = y;
+            }
+        }
+        //y rows kernel
+        for(uint x = 0; x < vsize+1; x += vsize){
+            for(uint y = 0; y < vsize+1; y++){
+                uint j = y * (vsize+1) + x;
+                float h = Mathh::terrain_noise(x*size + offx, y*size + offy);
+                vertices->data[j * 3 + 0] = x;
+                vertices->data[j * 3 + 1] = h;
+                vertices->data[j * 3 + 2] = y;
+            }
+        }
+        //indices
         uint indi_len = vsize * vsize * 6;
         auto indices = new Buffer(new uint[indi_len], indi_len);
         int i = 0;
@@ -40,6 +71,7 @@ class TerrainPatch{
             indices->data[i + 5] = (x + 0) + (y + 1) * (vsize + 1);
             i += 6;
         }
+        //normals
         uint norm_len = vert_len;
         auto normals = new Buffer(new float[norm_len * 3], norm_len * 3);
         auto count = new uint[norm_len];
@@ -74,7 +106,7 @@ class TerrainPatch{
             normals->data[i * 3 + 1] = norms[i].y;
             normals->data[i * 3 + 2] = norms[i].z;
         }
-
+        //gl stuff
         vao = new VAO();
         vao->bind();
         auto vbo = new GBO<float>(GL_ARRAY_BUFFER);
