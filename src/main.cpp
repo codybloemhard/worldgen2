@@ -52,7 +52,7 @@ void init(){
     WorldState::Get().world_height = 3000.0f;
     WorldState::Get().world_scale = 0.0001f;
     WorldState::Get().walk_speed = 5.0f;
-    WorldState::Get().fly_speed = 2000.0f;
+    WorldState::Get().fly_speed = 500.0f;
     font = new Font("assets/codyfont.png", 12, 8, 16.0f/9.0f);
     terrain = new Terrain();
     sea = new Sea();

@@ -13,7 +13,7 @@ class TerrainPatch{
     float offx, offy, size;
     public:
     uint vsize;//TODO: need public?
-    TerrainPatch(float offx, float offy, float size, uint vsize){
+    TerrainPatch(float offx, float offy, float size, uint vsize, uint subx, uint suby){
         this->offx = offx;
         this->offy = offy;
         this->size = size;
@@ -42,7 +42,16 @@ class TerrainPatch{
         for(uint y = 0; y < vsize+1; y += vsize){
             for(uint x = 0; x < vsize+1; x++){
                 uint j = y * (vsize+1) + x;
-                float h = Mathh::terrain_noise(x*size + offx, y*size + offy);
+                float h;
+                if((suby == 0 && y == 0) || (suby == 2 && y == vsize)){
+                    uint div = ((subx * vsize) + x) % 3;
+                    float b_power = ((float)div) / 3.0f;
+                    float a = Mathh::terrain_noise(((int)x-(int)div)*size + offx, y*size + offy);
+                    float b = Mathh::terrain_noise(((int)x-(int)div+3)*size + offx, y*size + offy);
+                    h = (b_power * b) + ((1.0f - b_power)*a);
+                }
+                else
+                    h = Mathh::terrain_noise(x*size + offx, y*size + offy);
                 vertices->data[j * 3 + 0] = x;
                 vertices->data[j * 3 + 1] = h;
                 vertices->data[j * 3 + 2] = y;
@@ -191,12 +200,12 @@ class Terrain{
     private:
     void place_patches(std::vector<TerrainPatch*> &patches, float size, uint vsize, bool donutpatch){
         float relsize = size/(float)vsize;
-        for(int x = 0; x < 3; x++)
-            for(int y = 0; y < 3; y++){
+        for(uint x = 0; x < 3; x++)
+            for(uint y = 0; y < 3; y++){
                 if(donutpatch && x == 1 && y == 1)
                     patches[y*3 + x] = nullptr;    
                 else
-                    patches[y*3 + x] = new TerrainPatch(((float)x-1.5f) * size, ((float)y-1.5f) * size, relsize, vsize);
+                    patches[y*3 + x] = new TerrainPatch(((float)x-1.5f) * size, ((float)y-1.5f) * size, relsize, vsize, x, y);
         }
     }
 };
