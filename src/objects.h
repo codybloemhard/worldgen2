@@ -38,6 +38,7 @@ class TerrainPatch{
             vertices->data[j * 3 + 1] = h;
             vertices->data[j * 3 + 2] = y;
         }
+        //TODO: only x rows have gaps
         //x rows kernel
         for(uint y = 0; y < vsize+1; y += vsize){
             for(uint x = 0; x < vsize+1; x++){
@@ -61,7 +62,16 @@ class TerrainPatch{
         for(uint x = 0; x < vsize+1; x += vsize){
             for(uint y = 0; y < vsize+1; y++){
                 uint j = y * (vsize+1) + x;
-                float h = Mathh::terrain_noise(x*size + offx, y*size + offy);
+                float h;
+                if((subx == 0 && x == 0) || (subx == 2 && x == vsize)){
+                    uint div = ((suby * vsize) + y) % 3;
+                    float b_power = ((float)div) / 3.0f;
+                    float a = Mathh::terrain_noise(x*size + offx, ((int)y-(int)div)*size + offy);
+                    float b = Mathh::terrain_noise(x*size + offx, ((int)y-(int)div+3)*size + offy);
+                    h = (b_power * b) + ((1.0f - b_power)*a);
+                }
+                else
+                    h = Mathh::terrain_noise(x*size + offx, y*size + offy);
                 vertices->data[j * 3 + 0] = x;
                 vertices->data[j * 3 + 1] = h;
                 vertices->data[j * 3 + 2] = y;
