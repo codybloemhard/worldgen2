@@ -215,7 +215,7 @@ class Terrain{
         for(uint x = 0; x < 3; x++)
             for(uint y = 0; y < 3; y++){
                 if(donutpatch && x == 1 && y == 1)
-                    patches[y*3 + x] = nullptr;    
+                    patches[y*3 + x] = nullptr;
                 else
                     patches[y*3 + x] = new TerrainPatch(((float)x-1.5f) * size, ((float)y-1.5f) * size, relsize, vsize, x, y);
         }
@@ -248,7 +248,7 @@ class Sea{
         ebo->bind();
         ebo->stuff(indices);
         ebo->upload(GL_STATIC_DRAW);
-        
+
         vao->add_ebo(ebo);
         add_vaa(vbo, 0, 3, GL_FLOAT, GL_FALSE, 0);
         vao->unbind();
