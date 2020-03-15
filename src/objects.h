@@ -6,6 +6,130 @@
 #include "mathh.h"
 #include <vector>
 
+class ErosionTerrain{
+    private:
+    VAO *vao;
+    Shader *shader, *depshader;
+    float size;
+    uint vsize;
+    public:
+    ErosionTerrain(float size, uint vsize){
+        this->size = size;
+        this->vsize = vsize;
+        uint vert_len = (vsize+1)*(vsize+1);
+        auto vertices = new Buffer(new float[vert_len * 3], vert_len * 3);
+        //vertices
+        for(int i = 0; i < vert_len; i++){
+            uint x = (i % (vsize+1));
+            uint y = (i / (vsize+1));
+            vertices->data[i * 3 + 0] = x;
+            vertices->data[i * 3 + 1] = 0;
+            vertices->data[i * 3 + 2] = y;
+        }
+        //middle kernel
+        for(int i = 0; i < (vsize-1)*(vsize-1); i++){
+            uint x = (i % (vsize-1)) + 1;
+            uint y = (i / (vsize-1)) + 1;
+            uint j = y * (vsize+1) + x;
+            float h = Mathh::terrain_noise(x*size, y*size);
+            vertices->data[j * 3 + 0] = x;
+            vertices->data[j * 3 + 1] = h;
+            vertices->data[j * 3 + 2] = y;
+        }
+        //indices
+        uint indi_len = vsize * vsize * 6;
+        auto indices = new Buffer(new uint[indi_len], indi_len);
+        int i = 0;
+        for(uint x = 0; x < vsize; x++)for(uint y = 0; y < vsize; y++){
+            indices->data[i + 0] = (x + 0) + (y + 0) * (vsize + 1);
+            indices->data[i + 1] = (x + 1) + (y + 0) * (vsize + 1);
+            indices->data[i + 2] = (x + 1) + (y + 1) * (vsize + 1);
+            indices->data[i + 3] = (x + 0) + (y + 0) * (vsize + 1);
+            indices->data[i + 4] = (x + 1) + (y + 1) * (vsize + 1);
+            indices->data[i + 5] = (x + 0) + (y + 1) * (vsize + 1);
+            i += 6;
+        }
+        //normals
+        uint norm_len = vert_len;
+        auto normals = new Buffer(new float[norm_len * 3], norm_len * 3);
+        auto count = new uint[norm_len];
+        auto norms = new glm::vec3[norm_len];
+        for(uint x = 0; x < vsize; x++)for(uint y = 0; y < vsize; y++){
+            auto r0 = (x + 0) + (y + 0) * (vsize + 1);
+            auto r1 = (x + 1) + (y + 0) * (vsize + 1);
+            auto r2 = (x + 1) + (y + 1) * (vsize + 1);
+            auto r3 = (x + 0) + (y + 1) * (vsize + 1);
+            auto p0 = from_arr(vertices->data, r0 * 3);
+            auto p1 = from_arr(vertices->data, r1 * 3);
+            auto p2 = from_arr(vertices->data, r2 * 3);
+            auto p3 = from_arr(vertices->data, r3 * 3);
+            Mathh::scale_xz(p0, size);Mathh::scale_xz(p1, size);
+            Mathh::scale_xz(p2, size);Mathh::scale_xz(p3, size);
+            auto pn = glm::normalize(glm::cross(p1-p0,p2-p0));
+            auto qn = glm::normalize(glm::cross(p2-p0,p3-p0));
+            count[r0] += 2;
+            norms[r0] += pn + qn;
+            count[r1]++;
+            norms[r1] += pn;
+            count[r2] += 2;
+            norms[r2] += pn + qn;
+            count[r3]++;
+            norms[r3] += pn;
+        }
+        for(int i = 0; i < norm_len; i++){
+            norms[i] /= (float)count[i];
+        }
+        for(int i = 0; i < norm_len; i++){
+            normals->data[i * 3 + 0] = norms[i].x;
+            normals->data[i * 3 + 1] = norms[i].y;
+            normals->data[i * 3 + 2] = norms[i].z;
+        }
+        //gl stuff
+        vao = new VAO();
+        vao->bind();
+        auto vbo = new GBO<float>(GL_ARRAY_BUFFER);
+        vbo->bind();
+        vbo->stuff(vertices);
+        vbo->upload(GL_STATIC_DRAW);
+        auto nbo = new GBO<float>(GL_ARRAY_BUFFER);
+        nbo->bind();
+        nbo->stuff(normals);
+        nbo->upload(GL_STATIC_DRAW);
+        auto ebo = new GBO<uint>(GL_ELEMENT_ARRAY_BUFFER);
+        ebo->bind();
+        ebo->stuff(indices);
+        ebo->upload(GL_STATIC_DRAW);
+        vao->add_ebo(ebo);
+        add_vaa(vbo, 0, 3, GL_FLOAT, GL_FALSE, 0);
+        add_vaa(nbo, 1, 3, GL_FLOAT, GL_FALSE, 0);
+        vao->unbind();
+        shader = new Shader("shaders/terrain.vs", "shaders/terrain.fs", "shaders/terrain.gs");
+        depshader = new Shader("shaders/dep.vs", "shaders/dep.fs", nullptr);
+    }
+    ~ErosionTerrain(){
+        delete vao;
+        delete shader;
+        delete depshader;
+    }
+    void draw(FpsCamera *cam){
+        shader->use();
+        shader->set_float("height", WorldState::Get().world_height);
+        shader->set_float("sea_level", WorldState::Get().sea_level);
+        shader->set_float3("light_dir", WorldState::Get().sun_dir);
+        shader->set_float4("model", glm::vec4(0, 0, size, 0.0f));
+        cam->apply_vp(shader);
+        vao->bind();
+        glDrawElements(GL_TRIANGLES, vsize*vsize*6, GL_UNSIGNED_INT, 0);
+    }
+    void dep_draw(FpsCamera *cam){
+        depshader->use();
+        depshader->set_float3("campos", cam->campos);
+        shader->set_float4("model", glm::vec4(0, 0, 0, 0));
+        cam->apply_vp(depshader);
+        vao->bind();
+        glDrawElements(GL_TRIANGLES, vsize*vsize*6, GL_UNSIGNED_INT, 0);
+    }
+};
 class TerrainPatch{
     private:
     VAO *vao;

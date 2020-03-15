@@ -18,7 +18,7 @@ void input(GLFWwindow*, float, float, float);
 uint ww = 1600, wh = 900;
 //uint ww = 2560, wh = 1440;
 
-Terrain *terrain;
+ErosionTerrain *terrain;
 Sea *sea;
 Sky *sky;
 FpsCamera *cam;
@@ -48,18 +48,18 @@ int main(){
 
 void init(){
     WorldState::Get().sun_dir = glm::normalize(glm::vec3(0.5f, -1.0f, 0.5f));
-    WorldState::Get().sea_level = 0.25f;
-    WorldState::Get().world_height = 3000.0f;
-    WorldState::Get().world_scale = 0.0001f;
+    WorldState::Get().sea_level = 0.1f;
+    WorldState::Get().world_height = 130.0f;
+    WorldState::Get().world_scale = 0.001f;
     WorldState::Get().walk_speed = 5.0f;
     WorldState::Get().fly_speed = 500.0f;
     font = new Font("assets/codyfont.png", 12, 8, 16.0f/9.0f);
-    terrain = new Terrain();
+    terrain = new ErosionTerrain(1.0f, 1024);
     sea = new Sea();
     sky = new Sky();
     cam = new FpsCamera();
     cam->fov = 45.0f;
-    cam->far = 1000000.0f;
+    cam->far = 10000.0f;
 
     glGenFramebuffers(1, &fbo);
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
