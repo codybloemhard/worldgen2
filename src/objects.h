@@ -12,7 +12,7 @@ class TerrainPatch{
     Shader *shader, *depshader;
     float offx, offy, size;
     public:
-    uint vsize;//TODO: need public?
+    uint vsize;//YEET: need public?
     TerrainPatch(float offx, float offy, float size, uint vsize, uint subx, uint suby){
         this->offx = offx;
         this->offy = offy;
@@ -38,7 +38,7 @@ class TerrainPatch{
             vertices->data[j * 3 + 1] = h;
             vertices->data[j * 3 + 2] = y;
         }
-        //TODO: only x rows have gaps
+        //YEET: only x rows have gaps
         //x rows kernel
         for(uint y = 0; y < vsize+1; y += vsize){
             for(uint x = 0; x < vsize+1; x++){
@@ -50,6 +50,7 @@ class TerrainPatch{
                     float a = Mathh::terrain_noise(((int)x-(int)div)*size + offx, y*size + offy);
                     float b = Mathh::terrain_noise(((int)x-(int)div+3)*size + offx, y*size + offy);
                     h = (b_power * b) + ((1.0f - b_power)*a);
+                    h = 0;
                 }
                 else
                     h = Mathh::terrain_noise(x*size + offx, y*size + offy);
@@ -59,7 +60,7 @@ class TerrainPatch{
             }
         }
         //y rows kernel
-        for(uint x = 0; x < vsize+1; x += vsize){
+        /*for(uint x = 0; x < vsize+1; x += vsize){
             for(uint y = 0; y < vsize+1; y++){
                 uint j = y * (vsize+1) + x;
                 float h;
@@ -69,6 +70,7 @@ class TerrainPatch{
                     float a = Mathh::terrain_noise(x*size + offx, ((int)y-(int)div)*size + offy);
                     float b = Mathh::terrain_noise(x*size + offx, ((int)y-(int)div+3)*size + offy);
                     h = (b_power * b) + ((1.0f - b_power)*a);
+                    h = 0;
                 }
                 else
                     h = Mathh::terrain_noise(x*size + offx, y*size + offy);
@@ -76,7 +78,7 @@ class TerrainPatch{
                 vertices->data[j * 3 + 1] = h;
                 vertices->data[j * 3 + 2] = y;
             }
-        }
+        }*/
         //indices
         uint indi_len = vsize * vsize * 6;
         auto indices = new Buffer(new uint[indi_len], indi_len);

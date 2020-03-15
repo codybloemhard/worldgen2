@@ -30,7 +30,7 @@ void main(){
     p.x += model.x;
     p.z += model.y;
     gl_Position = proj * view * p;
-    vec3 nor = normalize(nr);//TODO: normals dont work for scaled patches
+    vec3 nor = normalize(nr);
     float h = p.y / height;
     vec3 sand = vec3(0.79f,0.58f,0.21f);
     vec3 grass = normalize(vec3(0.27f,0.48f,0.19f));
