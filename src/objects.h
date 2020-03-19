@@ -5,6 +5,40 @@
 #include "fps_camera.h"
 #include "mathh.h"
 #include <vector>
+#include <stdlib.h> //rand,srand
+#include <time.h> //time
+
+uint clamp(float v, uint vsize){
+    if(v >= vsize) return vsize - 1;
+    if(v < 0) return 0;
+    return v;
+}
+
+float min(float a, float b){
+    if(a <= b) return a;
+    return b;
+}
+
+float max(float a, float b){
+    if(a >= b) return a;
+    return b;
+}
+
+uint mapIndex(float x, float y, uint vsize){
+    return (clamp(y, vsize) * (vsize + 1) + clamp(x, vsize)) * 3 + 1;
+}
+
+float maph(float x, float y, float* map, uint vsize){
+    return map[mapIndex(x, y, vsize)];
+}
+
+void deposit(float x, float y, float amount, float* map, uint vsize){
+    map[mapIndex(x, y, vsize)] += amount;
+}
+
+void erode(float x, float y, float amount, float* map, uint vsize){
+    map[mapIndex(x, y, vsize)] -= amount;
+}
 
 class ErosionTerrain{
     private:
@@ -35,6 +69,74 @@ class ErosionTerrain{
             vertices->data[j * 3 + 0] = x;
             vertices->data[j * 3 + 1] = h;
             vertices->data[j * 3 + 2] = y;
+        }
+        //erosion
+        srand(time(NULL));
+        int iters = 3000;
+        uint max_path_len = vsize * 4;
+        float pInertia = 0.2;
+        float pMinSlope = 0.05f;
+        float pCapacity = 4.0f;
+        float pDeposition = 0.1f;
+        float pErosion = 0.02f;
+        float pGravity = 10.0f;
+        float pEvaporation = 0.01f;
+        float pRadius = 2.0f;
+        float* map = vertices->data;
+        float px, pz, dx, dz, vel, water, sediment;
+        float radNor = pRadius * pRadius;
+        for(int i = 0; i < iters; i++){
+            px = rand() % vsize;
+            pz = rand() % vsize;
+            dx = dz = vel = sediment = 0;
+            water = 1.0f;
+            for(int j = 0; j < max_path_len; j++){
+                float h00 = maph(px, pz, map, vsize);
+                float h10 = maph(px + 1, pz, map, vsize);
+                float h01 = maph(px, pz + 1, map, vsize);
+                float h11 = maph(px + 1, pz + 1, map, vsize);
+                float gx = h00+h01-h10-h11;
+                float gz = h00+h10-h01-h11;
+                float ndx = dx * pInertia - gx * (1.0f - pInertia);
+                float ndz = dz * pInertia - gz * (1.0f - pInertia);
+                float len = sqrt(ndx*ndx + ndz*ndz);
+                if(len < 0.0001f){
+                    ndx = (float)(rand() % 1000) / 1000.0f;
+                    ndz = (float)(rand() % 1000) / 1000.0f;
+                }
+                ndx /= len;
+                ndz /= len;
+                float npx = px + ndx;
+                float npz = pz + ndz;
+                float nh = maph(npx, npz, map, vsize);
+                float hdiff = nh - h00;
+                float c = max(-hdiff, pMinSlope) * vel * water * pCapacity;
+                if(sediment > c){
+                    float dropAmount = (sediment - c) * pDeposition;
+                    sediment = max(0, sediment - dropAmount);
+                    dropAmount /= 4;
+                    deposit(px + 1, pz, dropAmount, map, vsize);
+                    deposit(px, pz + 1, dropAmount, map, vsize);
+                    deposit(px - 1, pz, dropAmount, map, vsize);
+                    deposit(px, pz - 1, dropAmount, map, vsize);
+                }else{
+                    float erodeAmount = min((c - sediment) * pErosion, -hdiff);
+                    sediment += erodeAmount;
+                    erodeAmount /= radNor;
+                    for(int x = -pRadius; x < pRadius; x++)
+                        for(int z = -pRadius; z < pRadius; z++)
+                            erode(px + x, pz + z, erodeAmount, map, vsize);
+                }
+                float nvel = sqrt(vel * vel + hdiff * pGravity);
+                float nwater = water * (1.0f - pEvaporation);
+                if (water < 0.0001f) break;
+                px = npx;
+                pz = npz;
+                dx = ndx;
+                dz = ndz;
+                vel = nvel;
+                water = nwater;
+            }
         }
         //indices
         uint indi_len = vsize * vsize * 6;
