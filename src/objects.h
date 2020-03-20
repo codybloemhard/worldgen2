@@ -7,12 +7,7 @@
 #include <vector>
 #include <stdlib.h> //rand,srand
 #include <time.h> //time
-
-uint clamp(float v, uint vsize){
-    if(v >= vsize) return vsize - 1;
-    if(v < 0) return 0;
-    return v;
-}
+#include <stdio.h> //printf
 
 float min(float a, float b){
     if(a <= b) return a;
@@ -25,19 +20,31 @@ float max(float a, float b){
 }
 
 uint mapIndex(float x, float y, uint vsize){
-    return (clamp(y, vsize) * (vsize + 1) + clamp(x, vsize)) * 3 + 1;
+    return ((uint)y * (vsize + 1) + (uint)x);
 }
 
 float maph(float x, float y, float* map, uint vsize){
     return map[mapIndex(x, y, vsize)];
 }
 
-void deposit(float x, float y, float amount, float* map, uint vsize){
+void cmap(float x, float y, float amount, float* map, uint vsize){
     map[mapIndex(x, y, vsize)] += amount;
 }
 
-void erode(float x, float y, float amount, float* map, uint vsize){
-    map[mapIndex(x, y, vsize)] -= amount;
+void heightAndGradient(float px, float pz, float* gx, float* gz, float* height, float* map, uint vsize){
+    uint cx = (uint)px;
+    uint cz = (uint)pz;
+    float u = px - cx;
+    float v = pz - cz;
+    float hnw = maph(px, pz, map, vsize);
+    float hne = maph(px + 1, pz, map, vsize);
+    float hsw = maph(px, pz + 1, map, vsize);
+    float hse = maph(px + 1, pz + 1, map, vsize);
+    //printf("(%f,%zu,%zu)\t", hnw,cx,cz);
+    *gx = (hne - hnw) * (1.0f - v) + (hse - hsw) * v;
+    *gz = (hsw - hnw) * (1.0f - u) + (hse - hne) * u;
+    *height = hnw * (1.0f - u) * (1.0f - v) + hne * u * (1.0f - v) + hsw * (1.0f - u) * v + hse * u * v;
+
 }
 
 class ErosionTerrain{
@@ -51,97 +58,108 @@ class ErosionTerrain{
         this->size = size;
         this->vsize = vsize;
         uint vert_len = (vsize+1)*(vsize+1);
-        auto vertices = new Buffer(new float[vert_len * 3], vert_len * 3);
-        //vertices
+        auto hmap = new float[vert_len];
         for(int i = 0; i < vert_len; i++){
             uint x = (i % (vsize+1));
             uint y = (i / (vsize+1));
-            vertices->data[i * 3 + 0] = x;
-            vertices->data[i * 3 + 1] = 0;
-            vertices->data[i * 3 + 2] = y;
-        }
-        //middle kernel
-        for(int i = 0; i < (vsize-1)*(vsize-1); i++){
-            uint x = (i % (vsize-1)) + 1;
-            uint y = (i / (vsize-1)) + 1;
             uint j = y * (vsize+1) + x;
             float h = Mathh::terrain_noise(x*size, y*size);
-            vertices->data[j * 3 + 0] = x;
-            vertices->data[j * 3 + 1] = h;
-            vertices->data[j * 3 + 2] = y;
+            hmap[j] = h;
         }
+        printf("Erosion start!\n");
         //erosion
         srand(time(NULL));
         int iters = 50000;
-        uint max_path_len = vsize * 4;
-        float pInertia = 0.2;
-        float pMinSlope = 0.01f;
-        float pCapacity = 3.0f;
-        float pDeposition = 0.01f;
+        uint max_path_len = vsize * 3;
+        float pInertia = 0.1f;
+        float pMinSlope = 0.1f;
+        float pCapacity = 4.0f;
+        float pDeposition = 0.1f;
         float pErosion = 0.01f;
         float pGravity = 10.0f;
         float pEvaporation = 0.01f;
         float pRadius = 2.0f;
-        float* map = vertices->data;
         float px, pz, dx, dz, vel, water, sediment;
-        float radNor = pRadius * pRadius;
         for(int i = 0; i < iters; i++){
             px = rand() % vsize;
             pz = rand() % vsize;
             dx = dz = vel = sediment = 0;
             water = 1.0f;
             for(int j = 0; j < max_path_len; j++){
-                float h00 = maph(px, pz, map, vsize);
-                float h10 = maph(px + 1, pz, map, vsize);
-                float h01 = maph(px, pz + 1, map, vsize);
-                float h11 = maph(px + 1, pz + 1, map, vsize);
-                float gx = h00+h01-h10-h11;
-                float gz = h00+h10-h01-h11;
-                float ndx = dx * pInertia - gx * (1.0f - pInertia);
-                float ndz = dz * pInertia - gz * (1.0f - pInertia);
-                float len = sqrt(ndx*ndx + ndz*ndz);
-                if(len < 0.0001f){
-                    ndx = (float)(rand() % 1000) / 1000.0f - 0.5f;
-                    ndz = (float)(rand() % 1000) / 1000.0f - 0.5f;
-                }
-                ndx /= -len;
-                ndz /= -len;
-                float npx = px + ndx;
-                float npz = pz + ndz;
-                float nh = maph(npx, npz, map, vsize);
-                float hdiff = nh - h00;
-                float c = max(-hdiff, pMinSlope) * vel * water * pCapacity;
+                uint k = pRadius + 1;
+                if(px < k || px > vsize - k || pz < k || pz > vsize - k)
+                    break;
+                uint u = px - (int)px;
+                uint v = pz - (int)pz;
+                float gx = 0;
+                float gz = 0;
+                float height = 0;
+                heightAndGradient(px,pz,&gx,&gz,&height,hmap,vsize);
+                dx = dx * pInertia - gx * (1.0f - pInertia);
+                dz = dz * pInertia - gz * (1.0f - pInertia);
+                float len = max(0.01f,sqrt(dx*dx + dz*dz));
+                dx /= len;
+                dz /= len;
+                float npx = px + dx;
+                float npz = pz + dz;
+                if((dx == 0 && dz == 0) || npx < k || npx > vsize - k || npz < k || npz > vsize - k)
+                    break;
+                float nh = 0; float t0, t1 = 0;
+                heightAndGradient(npx,npz,&t0,&t1,&nh,hmap,vsize);
+                float hdiff = nh - height;
+                float c = max(-hdiff * vel * water * pCapacity, pMinSlope);
                 if(sediment > c || hdiff > 0){
                     float dropAmount = 0.0f;
-                    if(hdiff > 0) dropAmount = min(hdiff,sediment);
+                    if(hdiff > 0) dropAmount = min(hdiff, sediment);
                     else dropAmount = (sediment - c) * pDeposition;
+                    if(dropAmount < 0.0f) exit(10);
                     sediment -= dropAmount;
-                    dropAmount /= 4;
-                    // deposit(px, pz, dropAmount, map, vsize);
-                    deposit(px + 1, pz, dropAmount, map, vsize);
-                    deposit(px, pz + 1, dropAmount, map, vsize);
-                    deposit(px - 1, pz, dropAmount, map, vsize);
-                    deposit(px, pz - 1, dropAmount, map, vsize);
-                }else{
+                    //printf("(+: %f)\t", dropAmount);
+                    cmap(px, pz, dropAmount * (1.0f - u) * (1.0f - v), hmap, vsize);
+                    cmap(px + 1, pz, dropAmount * u * (1.0f - v), hmap, vsize);
+                    cmap(px, pz + 1, dropAmount * (1.0f - u) * v, hmap, vsize);
+                    cmap(px + 1, pz + 1, dropAmount * u * v, hmap, vsize);
+                }else if (true){
                     float erodeAmount = min((c - sediment) * pErosion, -hdiff);
-                    sediment += erodeAmount;
-                    // erodeAmount /= radNor;
-                    // for(int x = -pRadius; x < pRadius; x++)
-                    //     for(int z = -pRadius; z < pRadius; z++)
-                    //         erode(px + x, pz + z, erodeAmount, map, vsize);
-                    erode(px,pz,erodeAmount, map, vsize);
+                    if(erodeAmount < 0.0) exit(-11);
+                    //printf("(-: %f)\t", erodeAmount);
+                    float radNor = pRadius * pRadius;
+                    erodeAmount /= radNor;
+                    for(int x = -pRadius; x < pRadius; x++)
+                        for(int z = -pRadius; z < pRadius; z++){
+                            cmap(px + x, pz + z, -erodeAmount, hmap, vsize);
+                            sediment += erodeAmount;
+                        }
                 }
-                float nvel = sqrt(vel * vel + hdiff * pGravity);
-                float nwater = water * (1.0f - pEvaporation);
+                vel = sqrt(vel * vel + hdiff * pGravity);
+                water *= (1.0f - pEvaporation);
+                if (water < 0.001f) break;
                 px = npx;
                 pz = npz;
-                dx = ndx;
-                dz = ndz;
-                vel = nvel;
-                water = nwater;
-                if (water < 0.0001f) break;
             }
         }
+        for(int i = 0; i < vert_len; i++){
+            uint x = (i % (vsize+1)) + 1;
+            uint y = (i / (vsize+1)) + 1;
+            uint j = y * (vsize+1) + x;
+            float h = hmap[j];
+            if(h < 0) h = 0;
+            if(h > 1000) h = 1000;
+            hmap[j] = h;
+        }
+        //vertices
+        auto vertices = new Buffer(new float[vert_len * 3], vert_len * 3);
+        for(int i = 0; i < vert_len; i++){
+            uint x = (i % (vsize+1));
+            uint y = (i / (vsize+1));
+            uint j = y * (vsize+1) + x;
+            if(i != j) printf("aaah");
+            float h = hmap[j];
+            vertices->data[i * 3 + 0] = x;
+            vertices->data[i * 3 + 1] = h;
+            vertices->data[i * 3 + 2] = y;
+        }
+        printf("Erosion end!\n");
         //indices
         uint indi_len = vsize * vsize * 6;
         auto indices = new Buffer(new uint[indi_len], indi_len);
