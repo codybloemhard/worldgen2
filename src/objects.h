@@ -69,16 +69,34 @@ class ErosionTerrain{
         printf("Erosion start!\n");
         //erosion
         srand(time(NULL));
-        int iters = 50000;
-        uint max_path_len = vsize * 3;
-        float pInertia = 0.1f;
-        float pMinSlope = 0.1f;
+        int iters = 10000;
+        uint max_path_len = 300;
+        float pInertia = 0.05f;
+        float pMinSlope = 0.01f;
         float pCapacity = 4.0f;
-        float pDeposition = 0.1f;
-        float pErosion = 0.01f;
-        float pGravity = 10.0f;
+        float pDeposition = 0.3f;
+        float pErosion = 0.3f;
+        float pGravity = 3.0f;
         float pEvaporation = 0.01f;
-        float pRadius = 2.0f;
+        float pRadius = 3.0f;
+        uint brushWidth = pRadius * 2;
+        uint blen = brushWidth * brushWidth;
+        float* brushWeight = new float[blen];
+        int* brushOffset = new int[blen];
+        uint wc = 0;
+        float wsum = 0.0f;
+        for(int bx = -pRadius; bx <= pRadius; bx++)
+            for(int by = -pRadius; by <= pRadius; by ++){
+                float sd = bx * bx + by * by;
+                if(sd > pRadius * pRadius) continue;
+                brushOffset[wc] = by * (vsize + 1) + bx;
+                float bw = 1.0f - sqrt(sd) / pRadius;
+                wsum += bw;
+                brushWeight[wc] = bw;
+                wc++;
+            }
+        for(int i = 0; i < wc; i++)
+            brushWeight[i] /= wsum;
         float px, pz, dx, dz, vel, water, sediment;
         for(int i = 0; i < iters; i++){
             px = rand() % vsize;
@@ -89,8 +107,8 @@ class ErosionTerrain{
                 uint k = pRadius + 1;
                 if(px < k || px > vsize - k || pz < k || pz > vsize - k)
                     break;
-                uint u = px - (int)px;
-                uint v = pz - (int)pz;
+                uint u = px - (uint)px;
+                uint v = pz - (uint)pz;
                 float gx = 0;
                 float gz = 0;
                 float height = 0;
@@ -108,6 +126,7 @@ class ErosionTerrain{
                 heightAndGradient(npx,npz,&t0,&t1,&nh,hmap,vsize);
                 float hdiff = nh - height;
                 float c = max(-hdiff * vel * water * pCapacity, pMinSlope);
+                // float c = max(-hdiff, pMinSlope) * vel * water * pCapacity;
                 if(sediment > c || hdiff > 0){
                     float dropAmount = 0.0f;
                     if(hdiff > 0) dropAmount = min(hdiff, sediment);
@@ -122,14 +141,14 @@ class ErosionTerrain{
                 }else if (true){
                     float erodeAmount = min((c - sediment) * pErosion, -hdiff);
                     if(erodeAmount < 0.0) exit(-11);
-                    //printf("(-: %f)\t", erodeAmount);
-                    float radNor = pRadius * pRadius;
-                    erodeAmount /= radNor;
-                    for(int x = -pRadius; x < pRadius; x++)
-                        for(int z = -pRadius; z < pRadius; z++){
-                            cmap(px + x, pz + z, -erodeAmount, hmap, vsize);
-                            sediment += erodeAmount;
-                        }
+                    for(uint k = 0; k < blen; k++){
+                        int ind = mapIndex(px, pz, vsize);
+                        float wea = erodeAmount * brushWeight[k];
+                        float deltaSediment = (hmap[ind] < wea) ? hmap[ind] : wea;
+                        hmap[ind] -= deltaSediment;
+                        sediment += deltaSediment;
+                    }
+                    // cmap(px,pz, -erodeAmount, hmap, vsize);
                 }
                 vel = sqrt(vel * vel + hdiff * pGravity);
                 water *= (1.0f - pEvaporation);
