@@ -44,7 +44,6 @@ void heightAndGradient(float px, float pz, float* gx, float* gz, float* height, 
     *gx = (hne - hnw) * (1.0f - v) + (hse - hsw) * v;
     *gz = (hsw - hnw) * (1.0f - u) + (hse - hne) * u;
     *height = hnw * (1.0f - u) * (1.0f - v) + hne * u * (1.0f - v) + hsw * (1.0f - u) * v + hse * u * v;
-
 }
 
 class ErosionTerrain{
@@ -58,18 +57,20 @@ class ErosionTerrain{
         this->size = size;
         this->vsize = vsize;
         uint vert_len = (vsize+1)*(vsize+1);
+        float worldh = WorldState::Get().world_height;
         auto hmap = new float[vert_len];
         for(int i = 0; i < vert_len; i++){
             uint x = (i % (vsize+1));
             uint y = (i / (vsize+1));
             uint j = y * (vsize+1) + x;
             float h = Mathh::terrain_noise(x*size, y*size);
+            h /= worldh;
             hmap[j] = h;
         }
         printf("Erosion start!\n");
         //erosion
         srand(time(NULL));
-        int iters = 10000;
+        int iters = 50000;
         uint max_path_len = 300;
         float pInertia = 0.05f;
         float pMinSlope = 0.01f;
@@ -82,14 +83,16 @@ class ErosionTerrain{
         uint brushWidth = pRadius * 2;
         uint blen = brushWidth * brushWidth;
         float* brushWeight = new float[blen];
-        int* brushOffset = new int[blen];
+        int* brushOffsetX = new int[blen];
+        int* brushOffsetY = new int[blen];
         uint wc = 0;
         float wsum = 0.0f;
         for(int bx = -pRadius; bx <= pRadius; bx++)
             for(int by = -pRadius; by <= pRadius; by ++){
                 float sd = bx * bx + by * by;
                 if(sd > pRadius * pRadius) continue;
-                brushOffset[wc] = by * (vsize + 1) + bx;
+                brushOffsetX[wc] = bx;
+                brushOffsetY[wc] = by;
                 float bw = 1.0f - sqrt(sd) / pRadius;
                 wsum += bw;
                 brushWeight[wc] = bw;
@@ -101,14 +104,16 @@ class ErosionTerrain{
         for(int i = 0; i < iters; i++){
             px = rand() % vsize;
             pz = rand() % vsize;
-            dx = dz = vel = sediment = 0;
-            water = 1.0f;
+            dx = dz = sediment = 0;
+            vel = water = 1.0f;
             for(int j = 0; j < max_path_len; j++){
                 uint k = pRadius + 1;
                 if(px < k || px > vsize - k || pz < k || pz > vsize - k)
                     break;
                 uint u = px - (uint)px;
                 uint v = pz - (uint)pz;
+                float opx = px;
+                float opz = pz;
                 float gx = 0;
                 float gz = 0;
                 float height = 0;
@@ -118,12 +123,12 @@ class ErosionTerrain{
                 float len = max(0.01f,sqrt(dx*dx + dz*dz));
                 dx /= len;
                 dz /= len;
-                float npx = px + dx;
-                float npz = pz + dz;
-                if((dx == 0 && dz == 0) || npx < k || npx > vsize - k || npz < k || npz > vsize - k)
+                px += dx;
+                pz += dz;
+                if((dx == 0 && dz == 0) || px < k || px > vsize - k || pz < k || pz > vsize - k)
                     break;
                 float nh = 0; float t0, t1 = 0;
-                heightAndGradient(npx,npz,&t0,&t1,&nh,hmap,vsize);
+                heightAndGradient(px,pz,&t0,&t1,&nh,hmap,vsize);
                 float hdiff = nh - height;
                 float c = max(-hdiff * vel * water * pCapacity, pMinSlope);
                 // float c = max(-hdiff, pMinSlope) * vel * water * pCapacity;
@@ -134,37 +139,34 @@ class ErosionTerrain{
                     if(dropAmount < 0.0f) exit(10);
                     sediment -= dropAmount;
                     //printf("(+: %f)\t", dropAmount);
-                    cmap(px, pz, dropAmount * (1.0f - u) * (1.0f - v), hmap, vsize);
-                    cmap(px + 1, pz, dropAmount * u * (1.0f - v), hmap, vsize);
-                    cmap(px, pz + 1, dropAmount * (1.0f - u) * v, hmap, vsize);
-                    cmap(px + 1, pz + 1, dropAmount * u * v, hmap, vsize);
+                    cmap(opx, opz, dropAmount * (1.0f - u) * (1.0f - v), hmap, vsize);
+                    cmap(opx + 1, opz, dropAmount * u * (1.0f - v), hmap, vsize);
+                    cmap(opx, opz + 1, dropAmount * (1.0f - u) * v, hmap, vsize);
+                    cmap(opx + 1, opz + 1, dropAmount * u * v, hmap, vsize);
                 }else if (true){
                     float erodeAmount = min((c - sediment) * pErosion, -hdiff);
                     if(erodeAmount < 0.0) exit(-11);
-                    for(uint k = 0; k < blen; k++){
-                        int ind = mapIndex(px, pz, vsize);
-                        float wea = erodeAmount * brushWeight[k];
+                    for(uint l = 0; l < wc; l++){
+                        int ind = mapIndex(opx + brushOffsetX[l], opz + brushOffsetY[l], vsize);
+                        float wea = erodeAmount * brushWeight[l];
                         float deltaSediment = (hmap[ind] < wea) ? hmap[ind] : wea;
                         hmap[ind] -= deltaSediment;
                         sediment += deltaSediment;
                     }
-                    // cmap(px,pz, -erodeAmount, hmap, vsize);
+                    // cmap(opx,opz, -erodeAmount, hmap, vsize);
                 }
-                vel = sqrt(vel * vel + hdiff * pGravity);
+                //vel = sqrt(vel * vel + hdiff * pGravity);
+                vel = sqrt(max(0.0f,vel * vel + hdiff * pGravity));
                 water *= (1.0f - pEvaporation);
                 if (water < 0.001f) break;
-                px = npx;
-                pz = npz;
             }
         }
         for(int i = 0; i < vert_len; i++){
-            uint x = (i % (vsize+1)) + 1;
-            uint y = (i / (vsize+1)) + 1;
-            uint j = y * (vsize+1) + x;
-            float h = hmap[j];
+            float h = hmap[i];
+            h *= 100;
             if(h < 0) h = 0;
             if(h > 1000) h = 1000;
-            hmap[j] = h;
+            hmap[i] = h;
         }
         //vertices
         auto vertices = new Buffer(new float[vert_len * 3], vert_len * 3);
