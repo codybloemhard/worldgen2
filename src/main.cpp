@@ -50,7 +50,7 @@ void init(){
     WorldState::Get().sun_dir = glm::normalize(glm::vec3(0.5f, -1.0f, 0.5f));
     WorldState::Get().sea_level = 0.1f;
     WorldState::Get().world_height = 130.0f;
-    WorldState::Get().world_scale = 0.001f;
+    WorldState::Get().world_scale = 0.002f;
     WorldState::Get().walk_speed = 5.0f;
     WorldState::Get().fly_speed = 500.0f;
     font = new Font("assets/codyfont.png", 12, 8, 16.0f/9.0f);
