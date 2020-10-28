@@ -6,7 +6,7 @@
 #include "../deps/glm/gtc/matrix_transform.hpp"
 #include "../deps/glm/gtc/type_ptr.hpp"
 #include "../deps/glad/glad.h"
-#include "/usr/include/GLFW/glfw3.h"
+#include <GLFW/glfw3.h>
 class FpsCamera{
     public:
     FpsCamera();

@@ -1,7 +1,7 @@
 #ifndef window_h
 #define window_h
 #include "../deps/glad/glad.h"
-#include "/usr/include/GLFW/glfw3.h"
+#include <GLFW/glfw3.h>
 #include <math.h>
 #include <stdio.h>
 
@@ -17,7 +17,7 @@ struct Globals{
 
 class Window{
     public:
-    Window(WindowInit, 
+    Window(WindowInit,
         void(*)(void),
         void(*)(float),
         void(*)(void),

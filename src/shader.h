@@ -1,7 +1,7 @@
 #ifndef shader_h
 #define shader_h
 #include "../deps/glad/glad.h"
-#include "/usr/include/GLFW/glfw3.h"
+#include <GLFW/glfw3.h>
 #include <string>
 #include <fstream>
 #include <streambuf>

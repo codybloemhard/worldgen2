@@ -1,7 +1,7 @@
 #ifndef glstuff_h
 #define glstuff_h
 #include "../deps/glad/glad.h"
-#include "/usr/include/GLFW/glfw3.h"
+#include <GLFW/glfw3.h>
 #include <vector>
 #include "../deps/glm/glm.hpp"
 #include "../deps/glm/gtc/matrix_transform.hpp"

@@ -1,5 +1,6 @@
 #include "../deps/glad/glad.h"
-#include "/usr/include/GLFW/glfw3.h"
+//#include "/usr/include/GLFW/glfw3.h"
+#include <GLFW/glfw3.h>
 #include "../deps/linmath.h"
 #include <stdio.h>
 #include "../deps/SimplexNoise.h"
