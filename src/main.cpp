@@ -50,12 +50,12 @@ int main(){
 void init(){
     WorldState::Get().sun_dir = glm::normalize(glm::vec3(0.5f, -1.0f, 0.5f));
     WorldState::Get().sea_level = 0.1f;
-    WorldState::Get().world_height = 130.0f;
-    WorldState::Get().world_scale = 0.002f;
+    WorldState::Get().world_height = 100.0f;
+    WorldState::Get().world_scale = 0.001f;
     WorldState::Get().walk_speed = 5.0f;
     WorldState::Get().fly_speed = 500.0f;
     font = new Font("assets/codyfont.png", 12, 8, 16.0f/9.0f);
-    terrain = new ErosionTerrain(1.0f, 256);
+    terrain = new ErosionTerrain(1.0f, 1024);
     sea = new Sea();
     sky = new Sky();
     cam = new FpsCamera(GLFW_KEY_Q,GLFW_KEY_M,GLFW_KEY_G,GLFW_KEY_S,GLFW_KEY_D,GLFW_KEY_T);
@@ -114,12 +114,12 @@ void render(){
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     //glBindFramebuffer(GL_FRAMEBUFFER, 0);
     terrain->draw(cam);
-    //glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    //glClearColor(0.0, 0.0, 0.0, 0.0);
-    //terrain->dep_draw(cam);
-    //glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    //sea->draw(cam, tex, ww, wh, gametime);
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClearColor(0.0, 0.0, 0.0, 0.0);
+    terrain->dep_draw(cam);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    sea->draw(cam, tex, ww, wh, gametime);
     sky->draw(cam);
     if(show_debug){
         uint end = font->print_grid(std::string("X: "), (int)cam->campos.x, font_size, glm::vec3(0.2f), 0, 0);

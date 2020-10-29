@@ -70,7 +70,7 @@ class ErosionTerrain{
         printf("Erosion start!\n");
         //erosion
         srand(time(NULL));
-        int iters = 50000;
+        int iters = 500000;
         uint max_path_len = 30;
         float pInertia = 0.1f;
         float pMinSlope = 0.05f;
