@@ -7,9 +7,10 @@
 #include "../deps/glm/gtc/type_ptr.hpp"
 #include "../deps/glad/glad.h"
 #include <GLFW/glfw3.h>
+
 class FpsCamera{
     public:
-    FpsCamera();
+    FpsCamera(int,int,int,int,int,int); // setup the keys
     void input(GLFWwindow*, float, float, float);
     void apply_vp(Shader*,bool usepos = true);
     float move_sens = 1.0f, vert_sens = 1.0f, mouse_sens = 0.1f,
@@ -17,6 +18,7 @@ class FpsCamera{
         near = 0.1f, far = 1000.0f;
     glm::vec3 campos = glm::vec3(0.0f, 0.0f, 0.0f);
     private:
+    int kup, kdown, kfor, kback, kleft, kright;
     float pitch, yaw, lastx, lasty;
     bool firstmouse = true;
     glm::vec3 camdir = glm::vec3(0.0f),

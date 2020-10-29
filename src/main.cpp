@@ -58,7 +58,7 @@ void init(){
     terrain = new ErosionTerrain(1.0f, 256);
     sea = new Sea();
     sky = new Sky();
-    cam = new FpsCamera();
+    cam = new FpsCamera(GLFW_KEY_Q,GLFW_KEY_M,GLFW_KEY_G,GLFW_KEY_S,GLFW_KEY_D,GLFW_KEY_T);
     cam->fov = 45.0f;
     cam->far = 10000.0f;
 
@@ -136,7 +136,7 @@ void render(){
 void input(GLFWwindow *window, float elaps, float xpos, float ypos)
 {
     bool m_down_prev = m_down;
-    if(glfwGetKey(window, GLFW_KEY_M) == GLFW_PRESS)
+    if(glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS)
         m_down = true;
     else m_down = false;
     if(m_down_prev != m_down && m_down)
