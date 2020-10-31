@@ -56,7 +56,7 @@ void init(){
     WorldState::Get().fly_speed = 500.0f;
     font = new Font("assets/codyfont.png", 12, 8, 16.0f/9.0f);
     terrain = new ErosionTerrain(1.0f, 1024);
-    sea = new Sea();
+    sea = new Sea(2000.0f);
     sky = new Sky();
     cam = new FpsCamera(GLFW_KEY_Q,GLFW_KEY_M,GLFW_KEY_G,GLFW_KEY_S,GLFW_KEY_D,GLFW_KEY_T);
     cam->fov = 45.0f;

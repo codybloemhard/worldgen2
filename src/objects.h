@@ -70,7 +70,7 @@ class ErosionTerrain{
         printf("Erosion start!\n");
         //erosion
         srand(time(NULL));
-        int iters = 500000;
+        int iters = 1000000;
         uint max_path_len = 30;
         float pInertia = 0.1f;
         float pMinSlope = 0.05f;
@@ -158,10 +158,9 @@ class ErosionTerrain{
         }
         for(int i = 0; i < vert_len; i++){
             float h = hmap[i];
-            h *= 100;
-            if(h < 0) h = 0;
-            if(h > 1000) h = 1000;
-            hmap[i] = h;
+            if(h < 0.0f) h = 0.0f;
+            if(h > 1.0f) h = 1.0f;
+            hmap[i] = h * worldh;
         }
         //vertices
         auto vertices = new Buffer(new float[vert_len * 3], vert_len * 3);
@@ -490,8 +489,10 @@ class Sea{
     VAO *vao;
     Shader *shader;
     float height;
+    float size;
     public:
-    Sea(){
+    Sea(float size){
+        this->size = size;
         this->height = WorldState::Get().world_height * WorldState::Get().sea_level;
         vao = new VAO();
         vao->bind();
@@ -527,7 +528,7 @@ class Sea{
         shader->use();
         shader->set_float4("colour", 0.2f, 0.2f, 0.7f, 0.9f);
         shader->set_float("height", height);
-        shader->set_float("size", 1000.0f);
+        shader->set_float("size", this->size);
         shader->set_float3("campos", cam->campos);
         shader->set_float3("light_dir", WorldState::Get().sun_dir);
         shader->set_float2("tex_size", (float)ww, (float)wh);
